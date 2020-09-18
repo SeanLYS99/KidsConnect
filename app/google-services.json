@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "798465876312",
+    "firebase_url": "https://kidsconnect-f1bdd.firebaseio.com",
+    "project_id": "kidsconnect-f1bdd",
+    "storage_bucket": "kidsconnect-f1bdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798465876312:android:46a2b6277dd33b9430052d",
+        "android_client_info": {
+          "package_name": "com.example.assignment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798465876312-2stqf6u3rsk9b8jh4qak2pi9si1i2dkn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAj-rwZbbaXJ__MyRq_NZdaolA5bV9sZ1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798465876312-2stqf6u3rsk9b8jh4qak2pi9si1i2dkn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

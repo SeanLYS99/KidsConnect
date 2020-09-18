@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="colorPrimary">@color/mainColor</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#ffffff</color>
+    <color name="mainColor">#f5635b</color>
+    <color name="colorDefault">#c5c5c5</color>
+    <color name="colorBackground">#fef4f2</color>
+    <color name="colorControlActivated">@color/mainColor</color>
+    <color name="colorPrimaryLight">@color/mainColor</color>
+    <color name="colorError">#FF0000</color>
+    <color name="colorControlNormal">#a4a3a1</color>
+    <color name="colorButtonNormal">#ffffff</color>
+    <color name="startColor">#f5635b</color>
+    <color name="endColor">#ffa121</color>
+</resources>

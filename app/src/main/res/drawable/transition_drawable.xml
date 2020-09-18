@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/usual"
+        android:drawable="@drawable/profile_logout_btn" />
+
+    <item
+        android:id="@+id/selected"
+        android:state_pressed="true"
+        android:drawable="@drawable/logout_btn_focused" />
+
+    <transition
+        android:fromId="@+id/usual"
+        android:toId="@+id/selected">
+        <animation-list>
+
+        </animation-list>
+        <!-- The drawables used here can be solid colors, gradients, shapes, images, etc. -->
+
+    </transition>
+</animated-selector>
+
