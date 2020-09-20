@@ -34,6 +34,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class TrackerService extends Service {
 
@@ -123,7 +126,7 @@ public class TrackerService extends Service {
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path).child("location");
                     Location location = locationResult.getLastLocation();
                     if (location != null) {
                         //Log.d(TAG, "location update " + location);

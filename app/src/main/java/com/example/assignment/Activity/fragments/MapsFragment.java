@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.assignment.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -165,21 +166,29 @@ public class MapsFragment extends Fragment{
         // its value in mMarkers, which contains all the markers
         // for locations received, so that we can build the
         // boundaries required to show them all on the map at once
-        String key = dataSnapshot.getKey();
-        Log.e("key",key);
-        HashMap<String, Object> value = (HashMap<String, Object>) dataSnapshot.getValue();
-        double lat = Double.parseDouble(value.get("latitude").toString());
-        double lng = Double.parseDouble(value.get("longitude").toString());
-        LatLng location = new LatLng(lat, lng);
-        if (!mMarkers.containsKey(key)) {
-            mMarkers.put(key, mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)));
-        } else {
-            mMarkers.get(key).setPosition(location);
+        try {
+            String key = dataSnapshot.getKey();
+            DataSnapshot loc = dataSnapshot.child("location");
+            Log.e("key", loc.toString());
+            HashMap<String, Object> value = (HashMap<String, Object>) loc.getValue();
+            double lat = Double.parseDouble(value.get("latitude").toString());
+            double lng = Double.parseDouble(value.get("longitude").toString());
+            LatLng location = new LatLng(lat, lng);
+            if (!mMarkers.containsKey(key)) {
+                mMarkers.put(key, mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)));
+                mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)).showInfoWindow();
+            } else {
+                mMarkers.get(key).setPosition(location);
+            }
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker marker : mMarkers.values()) {
+                builder.include(marker.getPosition());
+            }
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
         }
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Marker marker : mMarkers.values()) {
-            builder.include(marker.getPosition());
+        catch (Exception e)
+        {
+            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
     }
 }

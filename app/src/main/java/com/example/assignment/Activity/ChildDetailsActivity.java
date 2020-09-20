@@ -26,6 +26,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -48,6 +50,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
     @BindView(R.id.cd_progress_bar)
     RelativeLayout pb;
     private SharedPreferences sp;
+    public Map<String, Object> userMap = new HashMap<>();
 
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -113,11 +116,17 @@ public class ChildDetailsActivity extends AppCompatActivity {
         editor.apply();
 
         try {
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("childName", name);
-            userMap.put("childAge", age);
 
-            db.collection("UserInfo")
+            userMap.put("name", name);
+            userMap.put("age", age);
+
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid() + "/" + name);
+            ref.updateChildren(userMap);
+            pb.setVisibility(View.INVISIBLE);
+            Intent child = new Intent(ChildDetailsActivity.this, ChildActivity.class);
+            startActivity(child);
+            finish();
+            /*db.collection("UserInfo")
                     .document(userUID)
                     .set(userMap, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -135,7 +144,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
                             pb.setVisibility(View.INVISIBLE);
                             Toast.makeText(ChildDetailsActivity.this, "Failed to create kid account. Please try again later.", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    });*/
         }
         catch (Exception e){
             Toast.makeText(ChildDetailsActivity.this, e.toString(), Toast.LENGTH_SHORT).show();

@@ -1,8 +1,8 @@
 package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,28 +10,33 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.assignment.Activity.fragments.ProfileFragment;
 import com.example.assignment.DeviceListAdapter;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.example.assignment.deviceModel;
 //import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -39,44 +44,55 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class DeviceListActivity extends AppCompatActivity {
 
-    @BindView(R.id.childDeviceText) TextView device;
-    @BindView(R.id.deviceList)
-    CardView list;
-    @BindView(R.id.noDeviceText) ConstraintLayout empty;
-    @BindView(R.id.removebtn) TextView remove;
-    RecyclerView recview;
-    @BindView(R.id.progressbar_device)
-    ConstraintLayout pb;
-    //@BindView(R.id.deviceListRecyclerView) RecyclerView list;
-    DeviceListAdapter adapter;
-    SharedPreferences sp;
+    //private static DocumentReference db;
+    long num;
+    String childName;
 
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+    //@BindView(R.id.childDeviceText) TextView device;
+    //@BindView(R.id.deviceList) CardView list;
+    @BindView(R.id.noDeviceText) ConstraintLayout empty_icon;
+    @BindView(R.id.progressbar_device) ConstraintLayout pb_icon;
+    //@BindView(R.id.removebtn) TextView remove;
+    public static ConstraintLayout pb;
+    public static ConstraintLayout empty;
+    @BindView(R.id.deviceListRecyclerView) RecyclerView list;
+    //@BindView(R.id.childDeviceText) TextView deviceText;
+    private DeviceListAdapter adapter;
+    //private FirebaseRecyclerAdapter<deviceModel, myDeviceListHolder> adapter;
+    static SharedPreferences sp;
 
+    private static FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+    public List<deviceModel> deviceList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
 
+        pb = findViewById(R.id.progressbar_device);
+        empty = findViewById(R.id.noDeviceText);
         sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
         ButterKnife.bind(this);
+        list.setLayoutManager(new LinearLayoutManager(this));
+        //fillDeviceList();
         setupDevice();
     }
 
-    @OnClick(R.id.removebtn)
+    /*@OnClick(R.id.removebtn)
     public void remove(){
         try {
             new SweetAlertDialog(DeviceListActivity.this, SweetAlertDialog.WARNING_TYPE)
@@ -105,19 +121,31 @@ public class DeviceListActivity extends AppCompatActivity {
         catch (Exception e){
             Toast.makeText(DeviceListActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
 
-    private void deleteRealtimeDatabase(){
+    public static void deleteRealtimeDatabase(Context context){
         try {
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
-            ref.removeValue();
+            DatabaseReference ref = (DatabaseReference) FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child(sp.getString("name", null)).orderByValue().equalTo(sp.getString("name", null));
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    ref.removeValue();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            Log.e("refer", ref.toString());
+            //ref.removeValue();
         }
         catch (Exception e){
-            Toast.makeText(DeviceListActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void deleteFirestore(){
+    public static void deleteFirestore(Context context){
         // Remove field from firestore
         try {
             DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
@@ -132,7 +160,7 @@ public class DeviceListActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     pb.setVisibility(View.INVISIBLE);
                     Utils.SuccessSweetDialog(
-                            DeviceListActivity.this,
+                            context,
                             "Success!",
                             "Child's device has been disconnected.",
                             "OK",
@@ -141,13 +169,15 @@ public class DeviceListActivity extends AppCompatActivity {
             });
         }
         catch (Exception e){
-            Toast.makeText(DeviceListActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void deleteSharedPreferences(){
+    public static void deleteSharedPreferences(){
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean("hasChild", false);
+        pb.setVisibility(View.INVISIBLE);
+        empty.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.imageButton)
@@ -157,72 +187,108 @@ public class DeviceListActivity extends AppCompatActivity {
         finish();
     }
 
+    /*private void fillDeviceList(){
+        deviceList = new ArrayList<>();
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid());
+        Log.e("childksjdhfkd", ref.toString());
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                deviceList.add(new deviceModel(childName));
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                deviceList.add(new deviceModel(childName));
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }*/
+
+
     private void setupDevice(){
+        pb.setVisibility(View.VISIBLE);
         /*DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
         docRef.get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 DocumentSnapshot doc = task.getResult();
                 if(doc.contains("childName")){
-                    name = doc.getString("childName");
+                    //name = doc.getString("childName");
                 }
             }
         });
 
-        recview = (RecyclerView)findViewById(R.id.deviceListRecyclerView);
-        recview.setLayoutManager(new LinearLayoutManager(this));
+        list = (RecyclerView)findViewById(R.id.deviceListRecyclerView);
+        list.setLayoutManager(new LinearLayoutManager(this));*/
         FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
-                .setQuery(FirebaseDatabase.getInstance().getReference().child(currentUser.getUid()), deviceModel.class)
+                .setQuery(FirebaseDatabase.getInstance().getReference(currentUser.getUid()), deviceModel.class)
                 .build();
+        Log.e("option", options.toString());
+        adapter = new DeviceListAdapter(options, DeviceListActivity.this);
 
-        Log.e("UIDdd",FirebaseDatabase.getInstance().getReference().child(currentUser.getUid()).toString());
+        /*adapter = new FirebaseRecyclerAdapter<deviceModel, myDeviceListHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull myDeviceListHolder holder, int position, @NonNull deviceModel model) {
+                Log.e("viewh", "SDF");
+                holder.name.setText(model.getName() + "'s device");
+            }
 
-        adapter = new DeviceListAdapter(options);
-        recview.setAdapter(adapter);
-        Log.e("hi", "bij");
-
-        RecyclerView recyclerView = list;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
-                .setQuery(FirebaseDatabase.getInstance().getReference().child(currentUser.getUid()), deviceModel.class)
-                .build();
-
-        adapter = new DeviceListAdapter(options);
-        list.setAdapter(adapter);*/
-
-        pb.setVisibility(View.VISIBLE);
-        try {
-            DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.contains("childName")) {
-                        empty.setVisibility(View.INVISIBLE);
-                        pb.setVisibility(View.INVISIBLE);
-                        list.setVisibility(View.VISIBLE);
-                        device.setText(document.getString("childName") + "'s device");
-                    } else {
-                        pb.setVisibility(View.INVISIBLE);
-                        list.setVisibility(View.GONE);
-                        empty.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
+            @NonNull
+            @Override
+            public myDeviceListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.devicelist_recycler_view, parent, false);
+                return new myDeviceListHolder(view);
+            }
+        };*/
+        list.setAdapter(adapter);
+        pb.setVisibility(View.INVISIBLE);
+        /*if (adapter.getItemCount() == 0) {
+            empty.setVisibility(View.INVISIBLE);
+            pb.setVisibility(View.INVISIBLE);
         }
-        catch (Exception e)
-        {
-            Toast.makeText(DeviceListActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-        }
+        else{
+            empty.setVisibility(View.INVISIBLE);
+            pb.setVisibility(View.INVISIBLE);
+        }*/
     }
 
-    /*@Override
+    /*private class myDeviceListHolder extends RecyclerView.ViewHolder{
+
+        private View view;
+        TextView name;
+        public myDeviceListHolder(@NonNull View itemView) {
+            super(itemView);
+            view = itemView;
+            name = itemView.findViewById(R.id.childDeviceText);
+        }
+    }*/
+
+    @Override
     protected void onStop() {
         super.onStop();
-        adapter.startListening();
+        adapter.stopListening();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        adapter.stopListening();
-    }*/
+        if(adapter != null) {
+            adapter.startListening();
+        }
+
+    }
 }

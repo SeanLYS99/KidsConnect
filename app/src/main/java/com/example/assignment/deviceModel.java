@@ -3,13 +3,11 @@ package com.example.assignment;
 public class deviceModel {
     private String name;
 
-    public deviceModel(){
+    public deviceModel(){}
 
-    }
-
-    public deviceModel(String name) {
+    /*public deviceModel(String name) {
         this.name = name;
-    }
+    }*/
 
     public String getName() {
         return name;

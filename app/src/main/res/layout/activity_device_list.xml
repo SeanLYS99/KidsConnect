@@ -10,8 +10,8 @@
         android:id="@+id/noDeviceText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintTop_toTopOf="parent"
-        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -104,7 +104,7 @@
         android:background="#D3D3D3"
         app:layout_constraintTop_toBottomOf="@+id/deviceTitle" />
 
-    <androidx.cardview.widget.CardView
+    <!--<androidx.cardview.widget.CardView
         android:id="@+id/deviceList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -150,7 +150,15 @@
                 android:layout_marginRight="20dp"/>
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>-->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/deviceListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--<androidx.recyclerview.widget.RecyclerView
