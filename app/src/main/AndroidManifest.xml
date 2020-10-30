@@ -8,6 +8,7 @@
          location permissions for the "MyLocation" functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -36,7 +37,7 @@
             android:screenOrientation="portrait"/>
 
         <service
-            android:name=".TrackerService"
+            android:name=".Service.TrackerService"
             android:enabled="true"
             android:exported="true" />
 
@@ -94,14 +95,14 @@
             android:theme="@style/PickRole" />
 
         <service
-            android:name=".FCMInstanceIDService">
+            android:name=".Service.FCMInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
         <service
-            android:name=".FCMMsgService"
+            android:name=".Service.FCMMsgService"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
