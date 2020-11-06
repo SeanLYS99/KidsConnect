@@ -1,7 +1,6 @@
 package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,25 +11,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Adapter;
 import android.widget.Toast;
 
-import com.example.assignment.DeviceListAdapter;
+import com.example.assignment.Adapter.DeviceListAdapter;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
-import com.example.assignment.deviceModel;
+import com.example.assignment.Model.deviceModel;
 //import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,15 +32,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -55,28 +44,17 @@ import butterknife.OnClick;
 
 public class DeviceListActivity extends AppCompatActivity {
 
-    //private static DocumentReference db;
-    long num;
-    String childName;
-
-    //@BindView(R.id.childDeviceText) TextView device;
-    //@BindView(R.id.deviceList) CardView list;
-    @BindView(R.id.noDeviceText) ConstraintLayout empty_icon;
-    @BindView(R.id.progressbar_device) ConstraintLayout pb_icon;
-    //@BindView(R.id.removebtn) TextView remove;
     public static ConstraintLayout pb;
     public static ConstraintLayout empty;
-    @BindView(R.id.deviceListRecyclerView) RecyclerView list;
-    //@BindView(R.id.childDeviceText) TextView deviceText;
     private DeviceListAdapter adapter;
-    //private FirebaseRecyclerAdapter<deviceModel, myDeviceListHolder> adapter;
     static SharedPreferences sp;
-
     private static FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private static FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
-    public List<deviceModel> deviceList;
+    @BindView(R.id.emptyDeviceDisplay) ConstraintLayout empty_icon;
+    @BindView(R.id.progressbar_device) ConstraintLayout pb_icon;
+    @BindView(R.id.deviceListRecyclerView) RecyclerView list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,52 +62,21 @@ public class DeviceListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_list);
 
         pb = findViewById(R.id.progressbar_device);
-        empty = findViewById(R.id.noDeviceText);
+        empty = findViewById(R.id.emptyDeviceDisplay);
         sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
         ButterKnife.bind(this);
         list.setLayoutManager(new LinearLayoutManager(this));
-        //fillDeviceList();
         setupDevice();
     }
 
-    /*@OnClick(R.id.removebtn)
-    public void remove(){
+    public static void deleteRealtimeDatabase(Context context, String name){
         try {
-            new SweetAlertDialog(DeviceListActivity.this, SweetAlertDialog.WARNING_TYPE)
-                    .setTitleText("Are you sure?")
-                    .setContentText("This action cannot be undone. All the data about this device will be cleared. Are you sure to disconnect the device?")
-                    .setConfirmText("Confirm")
-                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                        @Override
-                        public void onClick(SweetAlertDialog sDialog) {
-                            sDialog.dismissWithAnimation();
-                            pb.setVisibility(View.VISIBLE);
-                            deleteRealtimeDatabase();
-                            deleteSharedPreferences();
-                            deleteFirestore();
-                        }
-
-                    })
-                    .setCancelButton("Cancel", new SweetAlertDialog.OnSweetClickListener() {
-                        @Override
-                        public void onClick(SweetAlertDialog sDialog) {
-                            sDialog.dismissWithAnimation();
-                        }
-                    })
-                    .show();
-        }
-        catch (Exception e){
-            Toast.makeText(DeviceListActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
-    public static void deleteRealtimeDatabase(Context context){
-        try {
-            DatabaseReference ref = (DatabaseReference) FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child(sp.getString("name", null)).orderByValue().equalTo(sp.getString("name", null));
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child(name);
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     ref.removeValue();
+                    pb.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
@@ -138,7 +85,6 @@ public class DeviceListActivity extends AppCompatActivity {
                 }
             });
             Log.e("refer", ref.toString());
-            //ref.removeValue();
         }
         catch (Exception e){
             Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
@@ -146,7 +92,6 @@ public class DeviceListActivity extends AppCompatActivity {
     }
 
     public static void deleteFirestore(Context context){
-        // Remove field from firestore
         try {
             DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
 
@@ -222,40 +167,32 @@ public class DeviceListActivity extends AppCompatActivity {
 
     private void setupDevice(){
         pb.setVisibility(View.VISIBLE);
-        /*DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
-        docRef.get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                DocumentSnapshot doc = task.getResult();
-                if(doc.contains("childName")){
-                    //name = doc.getString("childName");
-                }
-            }
-        });
-
-        list = (RecyclerView)findViewById(R.id.deviceListRecyclerView);
-        list.setLayoutManager(new LinearLayoutManager(this));*/
+        Query query = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+        DatabaseReference doc = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
         FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
-                .setQuery(FirebaseDatabase.getInstance().getReference(currentUser.getUid()), deviceModel.class)
+                .setQuery(query, deviceModel.class)
                 .build();
         Log.e("option", options.toString());
         adapter = new DeviceListAdapter(options, DeviceListActivity.this);
-
-        /*adapter = new FirebaseRecyclerAdapter<deviceModel, myDeviceListHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull myDeviceListHolder holder, int position, @NonNull deviceModel model) {
-                Log.e("viewh", "SDF");
-                holder.name.setText(model.getName() + "'s device");
-            }
-
-            @NonNull
-            @Override
-            public myDeviceListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.devicelist_recycler_view, parent, false);
-                return new myDeviceListHolder(view);
-            }
-        };*/
         list.setAdapter(adapter);
         pb.setVisibility(View.INVISIBLE);
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()){
+                    empty_icon.setVisibility(View.VISIBLE);
+                }
+                else{
+                    empty_icon.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         /*if (adapter.getItemCount() == 0) {
             empty.setVisibility(View.INVISIBLE);
             pb.setVisibility(View.INVISIBLE);

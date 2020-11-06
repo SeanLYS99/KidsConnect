@@ -1,4 +1,4 @@
-package com.example.assignment;
+package com.example.assignment.Service;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.assignment.Activity.ChildActivity;
+import com.example.assignment.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -24,6 +25,7 @@ import java.util.Random;
 
 public class FCMMsgService extends FirebaseMessagingService {
     private final String ADMIN_CHANNEL_ID ="admin_channel";
+    ChildActivity child_act = new ChildActivity();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -51,7 +53,7 @@ public class FCMMsgService extends FirebaseMessagingService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setLargeIcon(largeIcon)
                 .setContentTitle("SOS!")
-                .setContentText("Your kids is in danger!")
+                .setContentText(child_act.child_name + " is in danger!")
                 .setAutoCancel(true)
                 .setSound(notificationSoundUri)
                 .setContentIntent(pendingIntent);

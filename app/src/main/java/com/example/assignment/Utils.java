@@ -3,12 +3,14 @@ package com.example.assignment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -19,6 +21,8 @@ import com.example.assignment.Activity.SignUpActivity;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.w3c.dom.Text;
+
+import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -131,4 +135,16 @@ public class Utils {
         }
         return true;
     }
+
+    /*public static void showView(List<View> views){
+        for (View view : views){
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public static void hideView(List<View> views){
+        for (View view : views){
+            view.setVisibility(View.GONE);
+        }
+    }*/
 }

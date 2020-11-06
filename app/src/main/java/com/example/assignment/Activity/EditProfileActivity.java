@@ -69,7 +69,7 @@ public class EditProfileActivity extends AppCompatActivity {
     public void password(){
         Intent intent = new Intent(EditProfileActivity.this, ResetPasswordActivity.class);
         startActivity(intent);
-        finish();
+        //finish();
     }
 
     @OnClick(R.id.edit_phone)

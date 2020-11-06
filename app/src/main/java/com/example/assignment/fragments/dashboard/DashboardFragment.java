@@ -1,4 +1,4 @@
-package com.example.assignment.Activity.fragments.dashboard;
+package com.example.assignment.fragments.dashboard;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.assignment.R;
 
-public class DashboardFragment extends Fragment {
+public class    DashboardFragment extends Fragment {
 
     private DashboardViewModel dashboardViewModel;
 

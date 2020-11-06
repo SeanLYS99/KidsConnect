@@ -1,12 +1,9 @@
-package com.example.assignment;
+package com.example.assignment.Adapter;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,25 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.DeviceListActivity;
-import com.example.assignment.Activity.ParentActivity;
+import com.example.assignment.Model.deviceModel;
+import com.example.assignment.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, DeviceListAdapter.myDeviceListHolder> {
@@ -82,8 +68,8 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
                                 public void onClick(SweetAlertDialog sDialog) {
                                     sDialog.dismissWithAnimation();
                                     DeviceListActivity.pb.setVisibility(View.VISIBLE);
-                                    DeviceListActivity.deleteRealtimeDatabase(context);
-                                    DeviceListActivity.deleteSharedPreferences();
+                                    DeviceListActivity.deleteRealtimeDatabase(context, deviceModel.getName());
+                                    //DeviceListActivity.deleteSharedPreferences();
                                 }
 
                             })

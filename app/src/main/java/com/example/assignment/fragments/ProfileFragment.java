@@ -1,4 +1,4 @@
-package com.example.assignment.Activity.fragments;
+package com.example.assignment.fragments;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,6 +31,7 @@ import com.bumptech.glide.Glide;
 import com.example.assignment.Activity.CodeActivity;
 import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.EditProfileActivity;
+import com.example.assignment.Activity.GeofenceActivity;
 import com.example.assignment.Activity.LoginActivity;
 import com.example.assignment.R;
 import com.google.android.gms.tasks.Continuation;
@@ -62,7 +64,7 @@ import static android.app.Activity.RESULT_OK;
 public class ProfileFragment extends Fragment {
 
     @BindView(R.id.SignOutButton) Button signoutbtn;
-    @BindView(R.id.progress_bar_parent) ConstraintLayout progressbar;
+    @BindView(R.id.progress_bar_parent) FrameLayout progressbar;
     @BindView(R.id.profile_username) TextView username;
     @BindView(R.id.profile_email) TextView email;
     @BindView(R.id.edit_name) TextView edit_name;
@@ -86,8 +88,10 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Transparent Status Bar
-        View decorView = getActivity().getWindow().getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        //View decorView = getActivity().getWindow().getDecorView();
+        //decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+        //((AppCompatActivity)getActivity()).getSupportActionBar().hide();
 
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
@@ -103,7 +107,7 @@ public class ProfileFragment extends Fragment {
     public void edit(){
         Intent intent = new Intent(getActivity(), EditProfileActivity.class);
         startActivity(intent);
-        getActivity().finish();
+        //getActivity().finish();
     }
 
     @OnClick(R.id.SignOutButton)
@@ -131,7 +135,7 @@ public class ProfileFragment extends Fragment {
     public void device(){
         Intent device = new Intent(getActivity(), DeviceListActivity.class);
         startActivity(device);
-        getActivity().finish();
+        //getActivity().finish();
     }
 
     @OnClick(R.id.AddProfilePic)
@@ -193,6 +197,7 @@ public class ProfileFragment extends Fragment {
             edit_email.setText(firebaseAuth.getCurrentUser().getEmail());
 
             DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
+            Log.e("oi", docRef.toString());
             docRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
@@ -317,4 +322,14 @@ public class ProfileFragment extends Fragment {
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
 
+    /*@Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+    }*/
 }

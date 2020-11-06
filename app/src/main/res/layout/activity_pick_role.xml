@@ -5,7 +5,6 @@
     android:id="@+id/PickRoleActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".Activity.PickRoleActivity">
 
     <include
@@ -54,11 +53,10 @@
             android:id="@+id/ParentsButton"
             android:layout_width="match_parent"
             android:layout_margin="20dp"
-            android:elevation="8dp"
             android:layout_height="200dp"
             android:layout_marginBottom="30dp"
             app:cardCornerRadius="8dp"
-            app:cardElevation="12dp">
+            app:cardElevation="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,10 +82,9 @@
             android:id="@+id/KidsButton"
             android:layout_width="match_parent"
             android:layout_margin="20dp"
-            android:elevation="8dp"
             android:layout_height="200dp"
             app:cardCornerRadius="8dp"
-            app:cardElevation="12dp">
+            app:cardElevation="5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

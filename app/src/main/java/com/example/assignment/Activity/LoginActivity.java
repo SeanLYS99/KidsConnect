@@ -83,7 +83,6 @@ public class LoginActivity extends AppCompatActivity {
     public void signUpScreen(){
         Intent signup = new Intent(this, SignUpActivity.class);
         startActivity(signup);
-        finish();
     }
 
     @OnTextChanged(value = R.id.LoginEmailText, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -135,7 +134,6 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUI(){
         Intent intent = new Intent(this, PickRoleActivity.class);
         startActivity(intent);
-        finish();
     }
 
     /*private void clearUserType(){

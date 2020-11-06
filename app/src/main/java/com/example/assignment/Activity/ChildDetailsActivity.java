@@ -124,6 +124,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
             ref.updateChildren(userMap);
             pb.setVisibility(View.INVISIBLE);
             Intent child = new Intent(ChildDetailsActivity.this, ChildActivity.class);
+            child.putExtra("child_name", name);
             startActivity(child);
             finish();
             /*db.collection("UserInfo")

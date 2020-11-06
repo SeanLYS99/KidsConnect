@@ -58,7 +58,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                                         "OK",
                                         EditProfileActivity.class);
                             } else {
-                                String error = task.getException().getMessage();
+                                String error = task.getException().getLocalizedMessage();
                                 Toast.makeText(ResetPasswordActivity.this, error, Toast.LENGTH_SHORT).show();
 
                             }
@@ -68,7 +68,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Toast.makeText(ResetPasswordActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(ResetPasswordActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

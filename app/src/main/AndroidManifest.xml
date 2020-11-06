@@ -8,7 +8,7 @@
          location permissions for the "MyLocation" functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -18,23 +18,27 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
+
+        <activity
+            android:name=".Activity.GeofenceActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/childDetails">
+        </activity>
+
+        <receiver android:name=".GeofenceBroadcastReceiver" />
+
         <activity
             android:name=".Activity.ResetPasswordActivity"
-            android:theme="@style/edit_profile"
-            android:screenOrientation="portrait">
-
-        </activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/edit_profile"></activity>
         <activity
             android:name=".Activity.EditProfileActivity"
-            android:theme="@style/edit_profile"
-            android:screenOrientation="portrait">
-
-        </activity>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/edit_profile"></activity>
         <activity
             android:name=".Activity.DeviceListActivity"
-            android:theme="@style/childDetails"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/childDetails" />
 
         <service
             android:name=".Service.TrackerService"
@@ -43,13 +47,12 @@
 
         <activity
             android:name=".Activity.ChildDetailsActivity"
-            android:theme="@style/child_details"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait"
+            android:theme="@style/child_details" />
         <activity
             android:name=".Activity.ChildActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -68,8 +71,8 @@
             android:theme="@style/Parent" />
         <activity
             android:name=".Activity.CodeActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".Activity.MainActivity"
             android:screenOrientation="portrait"
@@ -80,7 +83,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Activity.LoginActivity"
             android:screenOrientation="portrait"
@@ -94,13 +96,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/PickRole" />
 
-        <service
-            android:name=".Service.FCMInstanceIDService">
+        <service android:name=".Service.FCMInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service
             android:name=".Service.FCMMsgService"
             android:permission="com.google.android.c2dm.permission.SEND">

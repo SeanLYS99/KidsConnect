@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -20,10 +19,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.assignment.MySingleton;
 import com.example.assignment.R;
-import com.example.assignment.TrackerService;
+import com.example.assignment.Service.TrackerService;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,7 +32,11 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.ButterKnife;
@@ -50,14 +52,23 @@ public class ChildActivity extends AppCompatActivity {
     final String TAG = "NOTIFICATION TAG";
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    public static String child_name;
 
+    Date calendar_date = Calendar.getInstance().getTime();
+
+    SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+    SimpleDateFormat tf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+    String date = df.format(calendar_date);
+    String time = tf.format(calendar_date);
+    //String date = new SimpleDateFormat("yyyy/MM/dd").format(GregorianCalendar.getInstance());
+    //LocalDateTime now = LocalDateTime.now()
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
-
+        child_name = getIntent().getStringExtra("child_name");
         ButterKnife.bind(this);
         // Check GPS is enabled
         try {
@@ -119,7 +130,7 @@ public class ChildActivity extends AppCompatActivity {
                         JSONObject notificationBody = new JSONObject();
                         try {
                             notificationBody.put("title", "SOS!");
-                            notificationBody.put("message", "Your child is in danger!");
+                            notificationBody.put("message", child_name + " is in danger!");
 
                             notification.put("to", document.getString("parentToken"));
                             notification.put("data", notificationBody);
@@ -165,7 +176,28 @@ public class ChildActivity extends AppCompatActivity {
         };
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
 
-        try {
+        DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document();
+        Map<String, Object> notificationMap = new HashMap<>();
+        notificationMap.put("title", "SOS!");
+        notificationMap.put("content", child_name + " is in danger!");
+        notificationMap.put("date", date);
+        notificationMap.put("time", time);
+        notificationMap.put("name", child_name);
+
+        doc.set(notificationMap, SetOptions.merge())
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+        });
+        /*try {
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("sos", "true");
 
@@ -186,6 +218,6 @@ public class ChildActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
-        Log.e("send", "yes");
+        Log.e("send", "yes");*/
     }
 }

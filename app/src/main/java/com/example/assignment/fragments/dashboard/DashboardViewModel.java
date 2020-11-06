@@ -1,4 +1,4 @@
-package com.example.assignment.Activity.fragments.dashboard;
+package com.example.assignment.fragments.dashboard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

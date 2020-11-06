@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app1="http://schemas.android.com/apk/res-auto"
-    app1:cardCornerRadius="5dp"
-    android:elevation="5dp"
+    app1:cardCornerRadius="0dp"
     app1:cardUseCompatPadding="true">
 
     <LinearLayout

@@ -1,12 +1,15 @@
-package com.example.assignment.Activity.fragments;
+package com.example.assignment.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,11 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -36,6 +41,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 
@@ -155,7 +162,7 @@ public class MapsFragment extends Fragment{
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.d(TAG, "Failed to read value.", error.toException());
+                Toast.makeText(getContext(), "Failed to read value: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -173,10 +180,18 @@ public class MapsFragment extends Fragment{
             HashMap<String, Object> value = (HashMap<String, Object>) loc.getValue();
             double lat = Double.parseDouble(value.get("latitude").toString());
             double lng = Double.parseDouble(value.get("longitude").toString());
+            
+            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+            List<Address> address;
+            address = geocoder.getFromLocation(lat, lng, 1);
+            String addesses = address.get(0).getAddressLine(0);
+            Log.e("address", addesses);
+            
             LatLng location = new LatLng(lat, lng);
             if (!mMarkers.containsKey(key)) {
                 mMarkers.put(key, mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)));
-                mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)).showInfoWindow();
+                Marker marker = mMap.addMarker(new MarkerOptions().title(key + " is here").position(location));
+                marker.showInfoWindow();
             } else {
                 mMarkers.get(key).setPosition(location);
             }
@@ -184,7 +199,7 @@ public class MapsFragment extends Fragment{
             for (Marker marker : mMarkers.values()) {
                 builder.include(marker.getPosition());
             }
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
         }
         catch (Exception e)
         {

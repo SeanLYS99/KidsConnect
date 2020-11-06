@@ -1,6 +1,7 @@
 package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -24,6 +25,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -44,7 +51,8 @@ public class PickRoleActivity extends AppCompatActivity {
     @BindView(R.id.PickRoleBackButton) ImageButton backbtn;
     @BindView(R.id.progress_bar) RelativeLayout progressbar;
     private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore store = FirebaseFirestore.getInstance();
+    private FirebaseDatabase db = FirebaseDatabase.getInstance();
     SharedPreferences sp;
     private String m_FCMtoken;
     private String key;
@@ -78,10 +86,9 @@ public class PickRoleActivity extends AppCompatActivity {
     {
         key = "child";
         progressbar.setVisibility(View.VISIBLE);
-        updateUserInfo(firebaseAuth.getCurrentUser(), "child", key);
-        Intent kid = new Intent(this, ChildDetailsActivity.class);
-        startActivity(kid);
-        finish();
+        //updateUserInfo(firebaseAuth.getCurrentUser(), "child", key);
+        checkChildInfo(this);
+
     }
 
     @OnClick(R.id.PickRoleBackButton)
@@ -104,7 +111,7 @@ public class PickRoleActivity extends AppCompatActivity {
                 Map<String, Object> userMap = new HashMap<>();
                 userMap.put("parentToken", m_FCMtoken);
 
-                db.collection("UserInfo")
+                store.collection("UserInfo")
                         .document(firebaseAuth.getCurrentUser().getUid())
                         .set(userMap, SetOptions.merge())
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -149,5 +156,37 @@ public class PickRoleActivity extends AppCompatActivity {
         catch (Exception e){
             Toast.makeText(PickRoleActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Child
+    private void checkChildInfo(PickRoleActivity activity){
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("userType", "child");
+        editor.apply();
+        String uid = firebaseAuth.getUid();
+
+        DatabaseReference ref = db.getReference(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) // check if this uid has any registered child
+                {
+                    Intent kid = new Intent(activity, GeofenceActivity.class);
+                    startActivity(kid);
+                    finish();
+                }
+                else{
+                    Intent kid = new Intent(activity, ChildDetailsActivity.class);
+                    startActivity(kid);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }
