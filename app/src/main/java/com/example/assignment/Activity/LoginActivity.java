@@ -134,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
     private void updateUI(){
         Intent intent = new Intent(this, PickRoleActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /*private void clearUserType(){

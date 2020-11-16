@@ -171,7 +171,7 @@ public class PickRoleActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) // check if this uid has any registered child
                 {
-                    Intent kid = new Intent(activity, GeofenceActivity.class);
+                    Intent kid = new Intent(activity, ChildAccountActivity.class);
                     startActivity(kid);
                     finish();
                 }

@@ -16,6 +16,7 @@ import android.widget.Adapter;
 import android.widget.Toast;
 
 import com.example.assignment.Adapter.DeviceListAdapter;
+import com.example.assignment.EmptyRecyclerView;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.example.assignment.Model.deviceModel;
@@ -54,7 +55,8 @@ public class DeviceListActivity extends AppCompatActivity {
 
     @BindView(R.id.emptyDeviceDisplay) ConstraintLayout empty_icon;
     @BindView(R.id.progressbar_device) ConstraintLayout pb_icon;
-    @BindView(R.id.deviceListRecyclerView) RecyclerView list;
+    @BindView(R.id.deviceListRecyclerView)
+    EmptyRecyclerView list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,87 +134,25 @@ public class DeviceListActivity extends AppCompatActivity {
         finish();
     }
 
-    /*private void fillDeviceList(){
-        deviceList = new ArrayList<>();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid());
-        Log.e("childksjdhfkd", ref.toString());
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                deviceList.add(new deviceModel(childName));
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                deviceList.add(new deviceModel(childName));
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }*/
-
+    @OnClick(R.id.devicelist_fab)
+    public void add_Device(){
+        Intent add = new Intent(this, ChildDetailsActivity.class);
+        startActivity(add);
+        finish();
+    }
 
     private void setupDevice(){
         pb.setVisibility(View.VISIBLE);
-        Query query = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
-        DatabaseReference doc = FirebaseDatabase.getInstance().getReference(currentUser.getUid());
+        Query query = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid());
+        Log.e("qq", query.toString());
         FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
                 .setQuery(query, deviceModel.class)
                 .build();
-        Log.e("option", options.toString());
         adapter = new DeviceListAdapter(options, DeviceListActivity.this);
+        list.setEmptyView(empty_icon);
         list.setAdapter(adapter);
         pb.setVisibility(View.INVISIBLE);
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    empty_icon.setVisibility(View.VISIBLE);
-                }
-                else{
-                    empty_icon.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        /*if (adapter.getItemCount() == 0) {
-            empty.setVisibility(View.INVISIBLE);
-            pb.setVisibility(View.INVISIBLE);
-        }
-        else{
-            empty.setVisibility(View.INVISIBLE);
-            pb.setVisibility(View.INVISIBLE);
-        }*/
     }
-
-    /*private class myDeviceListHolder extends RecyclerView.ViewHolder{
-
-        private View view;
-        TextView name;
-        public myDeviceListHolder(@NonNull View itemView) {
-            super(itemView);
-            view = itemView;
-            name = itemView.findViewById(R.id.childDeviceText);
-        }
-    }*/
 
     @Override
     protected void onStop() {
@@ -226,6 +166,5 @@ public class DeviceListActivity extends AppCompatActivity {
         if(adapter != null) {
             adapter.startListening();
         }
-
     }
 }

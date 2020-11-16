@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    tools:context=".Activity.ChildAccountActivity">
+
+    <include android:id="@+id/ChildAccountToolbar"
+        layout="@layout/toolbar"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="95dp"
+        android:padding="22dp"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar">
+
+        <ImageButton
+            android:id="@+id/ChildAccountBackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_back"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="95dp"
+            android:gravity="center"
+            android:text="Child Account"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/child_acc_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="--- Choose an account to login ---"
+        android:textColor="#767676"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/ChildAccountToolbar"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintTop_toBottomOf="@+id/child_acc_text"
+        app:layout_constraintBottom_toTopOf="@+id/extended_fab">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/childAccountList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/extended_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/mainColor"
+        app:fabSize="normal"
+        app:icon="@drawable/plus"
+        app:iconTint="@android:color/white"
+        android:textStyle="bold"
+        app:iconSize="16dp"
+        android:text="Connect A New Device"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

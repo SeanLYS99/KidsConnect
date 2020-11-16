@@ -47,6 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.protobuf.Empty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +59,8 @@ import butterknife.ButterKnife;
 
 public class NotificationsFragment extends Fragment {
 
-    @BindView(R.id.noticeRecyclerView) RecyclerView list;
+    @BindView(R.id.noticeRecyclerView)
+    EmptyRecyclerView list;
     @BindView(R.id.emptyNoticeDisplay) ConstraintLayout empty;
     /*@BindView(R.id.noticeList) CardView list;
     @BindView(R.id.notice_date) TextView date;
@@ -100,6 +102,7 @@ public class NotificationsFragment extends Fragment {
                     .build();
             Log.e("option9s", options.toString());
             adapter = new NotificationAdapter(options, getActivity());
+            list.setEmptyView(empty);
             list.setAdapter(adapter);
 
             /*doc.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -123,7 +126,7 @@ public class NotificationsFragment extends Fragment {
                 }
             });*/
 
-            doc.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            /*doc.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()){
@@ -136,7 +139,7 @@ public class NotificationsFragment extends Fragment {
                         }
                     }
                 }
-            });
+            });*/
 
 
         }

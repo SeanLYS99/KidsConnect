@@ -6,7 +6,7 @@ import android.view.View;
 
 import com.example.assignment.Activity.fragments.MapsFragment;
 import com.example.assignment.Activity.fragments.ProfileFragment;
-import com.example.assignment.Activity.fragments.dashboard.DashboardFragment;
+import com.example.assignment.Activity.fragments.dashboard.FeaturesFragment;
 import com.example.assignment.Activity.fragments.home.HomeFragment;
 import com.example.assignment.Activity.fragments.notifications.NotificationsFragment;
 import com.example.assignment.R;
@@ -36,7 +36,7 @@ public class ParentActivity extends AppCompatActivity {
     String a = "1";
     @BindView(R.id.progress_bar_parent) ConstraintLayout pb;
     private Fragment f1;
-    //private final Fragment f2 = new DashboardFragment();
+    //private final Fragment f2 = new FeaturesFragment();
     private final Fragment f3 = new NotificationsFragment();
     private final Fragment f4 = new ProfileFragment();
     private final Fragment f5 = new HomeFragment();
@@ -211,13 +211,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.example.assignment.fragments.MapsFragment;
 import com.example.assignment.fragments.ProfileFragment;
-import com.example.assignment.fragments.dashboard.DashboardFragment;
+import com.example.assignment.fragments.dashboard.FeaturesFragment;
 import com.example.assignment.fragments.home.HomeFragment;
 import com.example.assignment.fragments.notifications.NotificationsFragment;
 import com.example.assignment.R;
@@ -226,7 +225,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
@@ -241,7 +239,7 @@ public class ParentActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar_parent)
     FrameLayout pb;
     private Fragment f1;
-    private final Fragment f2 = new DashboardFragment();
+    private final Fragment f2 = new FeaturesFragment();
     private final Fragment f3 = new NotificationsFragment();
     private final Fragment f4 = new ProfileFragment();
     private final Fragment f5 = new HomeFragment();
@@ -277,13 +275,13 @@ public class ParentActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            exitToast.cancel();
+            //exitToast.cancel();
             super.onBackPressed();
             return;
         }
 
         this.doubleBackToExitPressedOnce = true;
-        exitToast.makeText(this, "Press again to exit App", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Press again to exit App", Toast.LENGTH_SHORT).show();
 
         mHandler.postDelayed(mRunnable, 2000);
     }
@@ -403,13 +401,13 @@ public class ParentActivity extends AppCompatActivity {
                         previousFragment = selectedFragment;
                         selectedFragment = f2;
                         ActionBar action_bar = getSupportActionBar();
-                        action_bar.setTitle(Html.fromHtml(getColoredSpanned("Kids", "#000000") + getColoredSpanned("Connect", "#000000")));
+                        action_bar.setTitle(Html.fromHtml(getColoredSpanned("Features", "#000000")));
                         break;
                     case R.id.navigation_notifications:
                         previousFragment = selectedFragment;
                         selectedFragment = f3;
                         ActionBar action = getSupportActionBar();
-                        action.setTitle(Html.fromHtml(getColoredSpanned("<b>Notifications</b>", "#000000")));
+                        action.setTitle(Html.fromHtml(getColoredSpanned("<center>Notifications</center>", "#000000")));
                         break;
                     case R.id.navigation_profile:
                         previousFragment = selectedFragment;

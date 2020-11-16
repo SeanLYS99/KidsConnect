@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -17,7 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.assignment.Activity.AddGeofenceActivity;
 import com.example.assignment.Activity.DeviceListActivity;
+import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -189,8 +193,8 @@ public class MapsFragment extends Fragment{
             
             LatLng location = new LatLng(lat, lng);
             if (!mMarkers.containsKey(key)) {
-                mMarkers.put(key, mMap.addMarker(new MarkerOptions().title(key + " is here").position(location)));
-                Marker marker = mMap.addMarker(new MarkerOptions().title(key + " is here").position(location));
+                mMarkers.put(key, mMap.addMarker(new MarkerOptions().title(key + " is here").position(location).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("map_marker", 100, 100)))));
+                Marker marker = mMap.addMarker(new MarkerOptions().title(key + " is here").position(location).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("map_marker", 100, 100))));
                 marker.showInfoWindow();
             } else {
                 mMarkers.get(key).setPosition(location);
@@ -199,11 +203,18 @@ public class MapsFragment extends Fragment{
             for (Marker marker : mMarkers.values()) {
                 builder.include(marker.getPosition());
             }
+            Log.e("soh", "ai");
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
         }
         catch (Exception e)
         {
-            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public Bitmap resizeMapIcons(String iconName, int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getContext().getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
     }
 }

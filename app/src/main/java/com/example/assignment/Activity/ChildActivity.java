@@ -4,13 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -39,10 +46,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ChildActivity extends AppCompatActivity {
+
+    @BindView(R.id.CName) Button cname;
 
     private static final int PERMISSIONS_REQUEST = 1;
     private String m_FCMtoken;
@@ -60,6 +70,8 @@ public class ChildActivity extends AppCompatActivity {
     SimpleDateFormat tf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
     String date = df.format(calendar_date);
     String time = tf.format(calendar_date);
+
+    SharedPreferences sp;
     //String date = new SimpleDateFormat("yyyy/MM/dd").format(GregorianCalendar.getInstance());
     //LocalDateTime now = LocalDateTime.now()
     @Override
@@ -67,9 +79,18 @@ public class ChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
-        m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
-        child_name = getIntent().getStringExtra("child_name");
         ButterKnife.bind(this);
+
+        sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("child_account"));
+
+        m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
+        //child_name = getIntent().getStringExtra("child_name");
+        child_name = sp.getString("name", null);
+        cname.setText(child_name);
+
         // Check GPS is enabled
         try {
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -95,6 +116,14 @@ public class ChildActivity extends AppCompatActivity {
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String cname = intent.getStringExtra("cname");
+        }
+    };
 
     private void startTrackerService() {
         startService(new Intent(this, TrackerService.class));
@@ -176,6 +205,10 @@ public class ChildActivity extends AppCompatActivity {
         };
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
 
+        updateFirestore();
+    }
+
+    private void updateFirestore(){
         DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document();
         Map<String, Object> notificationMap = new HashMap<>();
         notificationMap.put("title", "SOS!");
@@ -185,39 +218,17 @@ public class ChildActivity extends AppCompatActivity {
         notificationMap.put("name", child_name);
 
         doc.set(notificationMap, SetOptions.merge())
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
 
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
 
-                }
-        });
-        /*try {
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("sos", "true");
-
-            db.collection("UserInfo")
-                    .document(firebaseAuth.getCurrentUser().getUid())
-                    .set(userMap, SetOptions.merge())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                        }
-                    });
-        } catch (Exception e) {
-            Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-        }
-        Log.e("send", "yes");*/
+                    }
+                });
     }
 }

@@ -95,8 +95,6 @@ public class TrackerService extends Service {
 
     private void requestLocationUpdates() {
         // Functionality coming next step
-
-
         String uid = firebaseAuth.getUid();
         String name = sp.getString("name", null);
         //Log.e("uid",name);

@@ -13,4 +13,5 @@
     <color name="colorButtonNormal">#ffffff</color>
     <color name="startColor">#f5635b</color>
     <color name="endColor">#ffa121</color>
+    <color name="reddish_grey">#D8CACA</color>
 </resources>

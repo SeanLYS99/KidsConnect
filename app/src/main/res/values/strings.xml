@@ -20,4 +20,13 @@
     <string name="transport_id" translatable="false">123</string>
     <string name="track_title">KidsConnect is running</string>
     <string name="track_text">Touch for more information or to stop the tracking service</string>
+    <string name="title_activity_child_account">ChildAccountActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
