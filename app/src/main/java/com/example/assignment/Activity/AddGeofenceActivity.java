@@ -1,5 +1,6 @@
 package com.example.assignment.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.assignment.R;
+import com.example.assignment.Utils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
@@ -49,6 +51,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -56,9 +59,14 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +74,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -76,15 +85,25 @@ public class AddGeofenceActivity extends AppCompatActivity {
     double lat, lng;
     private GoogleMap mMap;
     private HashMap<String, Marker> mMarkers = new HashMap<>();
-    private GeofencingClient geofencingClient;
     private LatLng map_location;
     private int RADIUS = 100;
     private Circle circle;
     private static int AUTOCOMPLETE_REQUEST_CODE = 100;
-    private int CIRCLE_DELETED_CODE = 0;
+    private int address_code = 1;
+    private int VALID_ADDRESS_CODE = 1;
+    String from_where;
+
+    // Firebase
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    // to differentiate save button function
+    private String id = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document().getId();
+
 
     @BindView(R.id.geofence_location_input) TextInputEditText input;
     @BindView(R.id.geofence_name_input) TextInputEditText name_input;
+    @BindView(R.id.add_geofence_title) TextView title;
     @BindView(R.id.seekBar1) SeekBar seekbar;
     @BindView(R.id.radius) TextView radius;
 
@@ -92,12 +111,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_geofence);
-
         ButterKnife.bind(this);
-
-        //initPlace();
-
-        geofencingClient = LocationServices.getGeofencingClient(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.geofence_map);
@@ -113,8 +127,47 @@ public class AddGeofenceActivity extends AppCompatActivity {
             mMap = googleMap;
 
             mMap.setMaxZoomPreference(15);
-            drawMap();
+
+            from_where = getIntent().getStringExtra("UniqueID");
+            if(getIntent() != null) {
+                if (from_where.equals("fromAddBtn")) {
+                    drawMap();
+                    updateMap();
+                }
+                else {
+                    // store data passed by adapter into variables;
+                    id = getIntent().getStringExtra("documentId");
+                    String existing_name = getIntent().getStringExtra("name");
+                    String existing_address = getIntent().getStringExtra("address");
+                    int existing_radius = getIntent().getIntExtra("radius", 100);
+
+                    // change layout data
+                    title.setText("Edit Geofence");
+                    name_input.setText(existing_name);
+                    input.setText(existing_address);
+                    seekbar.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            seekbar.setProgress(existing_radius - 100);
+                        }
+                    });
+                    try {
+                        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                        List<Address> address;
+                        address = geocoder.getFromLocationName(getIntent().getStringExtra("address"), 1);
+                        Address loc = address.get(0);
+                        map_location = new LatLng(loc.getLatitude(), loc.getLongitude());
+                        setMarker();
+                        addCircle(map_location, getIntent().getIntExtra("radius", 100));
+                    }
+                    catch (Exception e) {
+                        Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
             updateMap();
+
         }
     };
 
@@ -127,35 +180,33 @@ public class AddGeofenceActivity extends AppCompatActivity {
 
     @OnClick(R.id.SaveGeofenceBtn)
     public void save(){
+        if(Utils.isEmpty(name_input))
+        {
+            Toast.makeText(getApplicationContext(), "Please give geofence a name", Toast.LENGTH_SHORT).show();
+        }
 
+        if(Utils.isEmpty(name_input) | Utils.isEmpty(input) | VALID_ADDRESS_CODE == 0){
+            return;
+        }
+        checkAddress();
+
+        String fulladdress = geocoder(input.getText().toString());
+        updateFirestore(id, name_input.getText().toString(), fulladdress, RADIUS);
     }
 
-    @OnClick(R.id.geofence_location_input)
-    public void search(){
-        Log.e("popop", "d");
-        /*List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS, Place.Field.NAME);
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                .build(AddGeofenceActivity.this);
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);*/
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(AUTOCOMPLETE_REQUEST_CODE == 100 && resultCode == RESULT_OK){
-            // When success
-            // Initialize place
-            Place place = Autocomplete.getPlaceFromIntent(data);
-            // Set address on TextView
-            input.setText(place.getAddress());
+    private String geocoder(String input){
+        try {
+            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+            List<Address> location_object;
+            location_object = geocoder.getFromLocationName(input, 1);
+            Address location_details = location_object.get(0);
+            return location_details.getAddressLine(0);
         }
-        else if(resultCode == AutocompleteActivity.RESULT_ERROR){
-            // When error
-            // Initialize status
-            Status status = Autocomplete.getStatusFromIntent(data);
-            Toast.makeText(AddGeofenceActivity.this, status.getStatusMessage(), Toast.LENGTH_SHORT).show();
+        catch (Exception e)
+        {
+            Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+        return null;
     }
 
     private void hideKeyboard()
@@ -172,10 +223,39 @@ public class AddGeofenceActivity extends AppCompatActivity {
         return true;
     }
 
+    private void updateFirestore(String docID, String name, String address, int radius){
+        Map<String, Object> geofencingMap = new HashMap<>();
+        geofencingMap.put("radius", radius);
+        geofencingMap.put("name", name);
+        geofencingMap.put("address", address);
+        geofencingMap.put("id", docID);
 
-    private void initPlace(){
-        if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), "AIzaSyBnyGgr7uCBQJ3YxMxHgpeNHgyumwP-ahY");
+        try {
+            db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document(docID)
+                    .set(geofencingMap, SetOptions.merge())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            if(from_where.equals("fromAddBtn")) {
+                                Toast.makeText(getApplicationContext(), "Geofence Added Successfully", Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                Toast.makeText(getApplicationContext(), "Geofence Updated Successfully", Toast.LENGTH_SHORT).show();
+                            }
+                            Intent intent = new Intent(AddGeofenceActivity.this, GeofenceActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+        }
+        catch(Exception e){
+            Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -184,26 +264,8 @@ public class AddGeofenceActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    Geocoder coder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> address;
                     if(input.getText() != null) {
-                        try {
-                            address = coder.getFromLocationName(input.getText().toString(), 1);
-                            try {
-                                Address location = address.get(0);
-                                double lat = location.getLatitude();
-                                double lng = location.getLongitude();
-                                map_location = new LatLng(lat, lng);
-                            } catch (Exception e) {
-                                Toast.makeText(getApplicationContext(), "Place not found, please provide a proper address.", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (IOException e) {
-                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    else
-                    {
-
+                        checkAddress();
                     }
 
                     mMap.clear();
@@ -212,26 +274,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
                 }
             }
         });
-        /*input.addTextChangedListener(new TextWatcher() {
-            //boolean mToggle = false;
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-               // }
-                //mToggle = !mToggle;
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.e("after", "changed");
-                //if(mToggle){
-            }
-        });*/
     }
 
     private void drawMap() {
@@ -309,15 +351,35 @@ public class AddGeofenceActivity extends AppCompatActivity {
         });
     }
 
+    private void checkAddress(){
+        try {
+            Geocoder coder = new Geocoder(getApplicationContext(), Locale.getDefault());
+            List<Address> address;
+            address = coder.getFromLocationName(input.getText().toString(), 1);
+            try {
+                Address location = address.get(0);
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+                map_location = new LatLng(lat, lng);
+                VALID_ADDRESS_CODE = 1;
+            }
+            catch (Exception e) {
+                VALID_ADDRESS_CODE = 0;
+                Toast.makeText(getApplicationContext(), "Place not found, please provide a proper address.", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            VALID_ADDRESS_CODE = 0;
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void updateCircle()
     {
         // Check if there is already a circle on Google Map, if yes, update the radius, otherwise add a circle
         if(circle != null){
-            Log.e("hai", "1");
             circle.setRadius(RADIUS);
         }
         else {
-            Log.e("hai", "2");
             addCircle(map_location, RADIUS);
         }
     }
@@ -330,10 +392,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
         circleOptions.fillColor(Color.argb(20,245,99,91));
         circleOptions.strokeWidth(4);
         circle = mMap.addCircle(circleOptions);
-    }
-
-    private void addGeofence(LatLng latlng, float radius){
-
     }
 
     public Bitmap resizeMapIcons(String iconName, int width, int height){

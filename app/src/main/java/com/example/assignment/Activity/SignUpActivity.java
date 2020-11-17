@@ -192,7 +192,7 @@ public class SignUpActivity extends AppCompatActivity {
                     });
         }
         catch (Exception e){
-            Toast.makeText(SignUpActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

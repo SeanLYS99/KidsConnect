@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.ChildActivity;
@@ -102,7 +100,7 @@ public class AccountAdapter extends FirebaseRecyclerAdapter<accountModel, Accoun
     @NonNull
     @Override
     public AccountAdapter.accountHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.child_account_recyclerview, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_childaccount, parent, false);
         //view.setOnClickListener(mOnClickListener);
         return new AccountAdapter.accountHolder(view, this);
     }

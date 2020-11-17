@@ -15,8 +15,6 @@ import com.example.assignment.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<notificationMo
     @NonNull
     @Override
     public NotificationAdapter.noticeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_recycler_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_notification, parent, false);
         return new NotificationAdapter.noticeHolder(view);
     }
 

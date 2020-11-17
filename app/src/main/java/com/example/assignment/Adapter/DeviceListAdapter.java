@@ -1,6 +1,7 @@
 package com.example.assignment.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.DeviceListActivity;
+import com.example.assignment.Activity.LoginActivity;
 import com.example.assignment.Model.deviceModel;
 import com.example.assignment.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -93,7 +95,7 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
     @NonNull
     @Override
     public DeviceListAdapter.myDeviceListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.devicelist_recycler_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_device, parent, false);
         return new DeviceListAdapter.myDeviceListHolder(view);
     };
 }

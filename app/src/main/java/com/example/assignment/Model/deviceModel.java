@@ -5,10 +5,6 @@ public class deviceModel {
 
     public deviceModel(){}
 
-    /*public deviceModel(String name) {
-        this.name = name;
-    }*/
-
     public String getName() {
         return name;
     }

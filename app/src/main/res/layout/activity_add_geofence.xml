@@ -24,6 +24,7 @@
             android:src="@drawable/ic_baseline_arrow_back_24" />
 
         <TextView
+            android:id="@+id/add_geofence_title"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_margin="15dp"
@@ -68,7 +69,7 @@
             android:id="@+id/location_icon"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:src="@drawable/marker"
+            android:src="@drawable/thin_outlined_marker"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

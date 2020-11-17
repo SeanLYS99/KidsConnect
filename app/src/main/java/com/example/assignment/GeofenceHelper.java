@@ -4,8 +4,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.widget.Switch;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -25,9 +28,9 @@ public class GeofenceHelper extends ContextWrapper {
                 .build();
     }
 
-    public Geofence getGeofence(String ID, LatLng latlng, float radius, int transition_types){
+    public Geofence getGeofence(String ID, double lat, double lng, int radius, int transition_types){
         return new Geofence.Builder()
-                .setCircularRegion(latlng.latitude, latlng.longitude, radius)
+                .setCircularRegion(lat, lng, radius)
                 .setRequestId(ID)
                 .setTransitionTypes(transition_types)
                 .setLoiteringDelay(5000)
@@ -44,5 +47,22 @@ public class GeofenceHelper extends ContextWrapper {
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
         pendingIntent = PendingIntent.getBroadcast(this, 2607, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
+    }
+
+    public String getErrorString(Exception e){
+        if(e instanceof ApiException){
+            ApiException apiException = (ApiException) e;
+            switch (apiException.getStatusCode()){
+                case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
+                    return "GEOFENCE_NOT_AVAILABLE";
+
+                case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
+                    return "GEOFENCE_TOO_MANY_GEOFENCES";
+
+                case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
+                    return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
+            }
+        }
+        return e.getLocalizedMessage();
     }
 }
