@@ -83,11 +83,16 @@ public class MapsFragment extends Fragment {
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
     private String GEOFENCE_ID;
-    private LatLng latlng;
+    //private LatLng latlng;
     private static final String TAG = "MapsFragment";
-    private int count, radius;
+    private int count;
     private double lat, lng;
     List<Address> address_list;
+
+    // Declare list -- need to pass to GeofenceHelper
+    List<String> id_list = new ArrayList<>();
+    List<Integer> radius_list = new ArrayList<>();
+    List<LatLng> latlng_list = new ArrayList<>();
 
     //private int FINE_LOCATION_ACCESS_REQUEST_CODE = 101;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 102;
@@ -198,13 +203,12 @@ public class MapsFragment extends Fragment {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             drawMap();
-            addGeofence(new FirebaseCallBack() {
+            retrieveData(new FirebaseCallBack() {
                 @Override
-                public void onCallback(List<Double> lat, List<Double> lng, List<Integer> radius) {
-                    /*Log.e("id_list", String.valueOf(id_list.size()));
-                    Log.e("lat_list", String.valueOf(lat_list.size()));
-                    Log.e("lng_list", String.valueOf(lng_list.size()));
-                    Log.e("radius_list", String.valueOf(radius_list.size()));*/
+                public void onCallback(List<String> id, List<LatLng> latlng_list, List<Integer> rad) {
+                    if (rad.size() == latlng_list.size()) {
+                        setGeofence();
+                    }
                 }
             });
         }
@@ -269,6 +273,7 @@ public class MapsFragment extends Fragment {
             }
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
         } catch (Exception e) {
+            Log.d(TAG, "setMarker: false");
             Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -289,25 +294,20 @@ public class MapsFragment extends Fragment {
         mMap.addCircle(circleOptions);
     }
 
-    private void addGeofence(FirebaseCallBack firebaseCallBack) {
+    private void retrieveData(FirebaseCallBack firebaseCallBack) {
+        // Refer to firestore collection
         CollectionReference ref = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing");
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    // Declare list
-                    List<String> id_list = new ArrayList<>();
-                    List<Integer> radius_list = new ArrayList<>();
-                    List<Double> lat_list = new ArrayList<>();
-                    List<Double> lng_list = new ArrayList<>();
-
+                    // successfully read all the document inside this collection
                     for (QueryDocumentSnapshot snapshot : task.getResult()) {
-
+                        // save all the documentId inside id_list
                         id_list.add(snapshot.getId());
                     }
-                    Log.e("lsit", id_list.toString());
-                    for(count = 0; count < id_list.size(); count++)
-                    {
+                    
+                    for (count = 0; count < id_list.size(); count++) {
                         Log.e("before ref", String.valueOf(count));
                         ref.document(id_list.get(count)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
@@ -330,69 +330,59 @@ public class MapsFragment extends Fragment {
                                             // add retrieve location data into respective list
                                             lat = address_list.get(0).getLatitude();
                                             lng = address_list.get(0).getLongitude();
-                                            lat_list.add(lat);
-                                            lng_list.add(lng);
+                                            LatLng latLng = new LatLng(lat, lng);
+                                            latlng_list.add(latLng);
                                         }
                                         catch (Exception e) {
+                                            Log.d(TAG, "onComplete: false");
                                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                                         }
-
+                                        firebaseCallBack.onCallback(id_list, latlng_list, radius_list);
+                                        Log.d(TAG, "onComplete: yes");
                                     }
-                                    firebaseCallBack.onCallback(lat_list, lng_list, radius_list);
-                                }
-                                else
-                                {
+                                } else {
                                     Log.d(TAG, "Error getting documents: " + task.getException());
                                 }
                             }
                         });
                     }
-
-                    /*for(count = 0; count < id_list.size(); count++)
-                    {
-                        // Add geofence
-                        Log.e("after ref", String.valueOf(count));
-                        Log.e("id_list", String.valueOf(id_list.size()));
-                        Log.e("lat_list", String.valueOf(lat_list.size()));
-                        Log.e("lng_list", String.valueOf(lng_list.size()));
-                        Log.e("radius_list", String.valueOf(radius_list.size()));
-                        // passing all the data inside the list into GeofenceHelper class for process
-                        Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), lat_list.get(count), lng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
-                        GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
-                        PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
-
-                        int permission = ContextCompat.checkSelfPermission(getContext(),
-                                Manifest.permission.ACCESS_FINE_LOCATION);
-                        if (permission == PackageManager.PERMISSION_GRANTED) {
-                            geofencingClient.addGeofences(request, pendingIntent)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            addCircle(latlng, radius);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            String errorMessage = geofenceHelper.getErrorString(e);
-                                            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                    }*/
                 }
-                else{
+                else
+                {
                     Toast.makeText(getContext(), "Error getting documents: " + task.getException(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    private void readData(FirebaseCallBack firebaseCallBack){
+    private void setGeofence(){
+        int permission = ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            // If permission is granted
+            // read the list size and send every items inside different list to GeofenceHelper
+            for(count = 0; count < latlng_list.size(); count++) {
+                // Add geofence
+                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+                GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
+                PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
 
+                // save loop variable into a temp variable, so it won't become 3 in onSuccess method.
+                final int temp = count;
+                geofencingClient.addGeofences(request, pendingIntent)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // Because geofence doesn't come with an indicator, so add a circle to the map for better user experience
+                                addCircle(latlng_list.get(temp), radius_list.get(temp));
+                            }
+                        });
+            }
+        }
     }
 
+    // A way to deal with firebase asynchronous API
     private interface FirebaseCallBack{
-        void onCallback(List<Double> lat, List<Double> lng, List<Integer> radius);
+        void onCallback(List<String> id, List<LatLng> latLngList, List<Integer> radius);
     }
 }

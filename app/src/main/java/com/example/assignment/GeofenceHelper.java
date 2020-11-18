@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Switch;
 
 import com.google.android.gms.common.api.ApiException;
@@ -28,9 +29,10 @@ public class GeofenceHelper extends ContextWrapper {
                 .build();
     }
 
-    public Geofence getGeofence(String ID, double lat, double lng, int radius, int transition_types){
+    public Geofence getGeofence(String ID, LatLng latlng, int radius, int transition_types){
+        Log.d(TAG, "getGeofenceType: "+transition_types);
         return new Geofence.Builder()
-                .setCircularRegion(lat, lng, radius)
+                .setCircularRegion(latlng.latitude, latlng.longitude, radius)
                 .setRequestId(ID)
                 .setTransitionTypes(transition_types)
                 .setLoiteringDelay(5000)
@@ -39,6 +41,7 @@ public class GeofenceHelper extends ContextWrapper {
     }
 
     public PendingIntent getPendingIntent(){
+        // reuse this pending intent if we already have it
         if(pendingIntent != null)
         {
             return pendingIntent;

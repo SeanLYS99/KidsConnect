@@ -3,6 +3,8 @@ package com.example.assignment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,15 +17,18 @@ import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.example.assignment.Activity.AddGeofenceActivity;
 import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.LoginActivity;
 import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.Activity.SignUpActivity;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.w3c.dom.Text;
 
 import java.util.List;
+import java.util.Locale;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -135,6 +140,62 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static String convertNameToAddress(String input, Context context){
+        try {
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            List<Address> location_object;
+            location_object = geocoder.getFromLocationName(input, 1);
+            Address location_details = location_object.get(0);
+            return location_details.getAddressLine(0);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        return null;
+    }
+
+    public static LatLng convertNameToLatLng(Context context, String input, String errorMessage){
+        LatLng latlng = null;
+        try {
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            List<Address> address = geocoder.getFromLocationName(input, 1);
+
+            for(Address loc : address){
+                latlng = new LatLng(loc.getLatitude(), loc.getLongitude());
+            }
+        }
+        catch (Exception e) {
+            if(!errorMessage.equals("")) {
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Log.d("[UtilsLatLng] status: ",  e.getMessage());
+            }
+        }
+        return latlng;
+    }
+
+    public static String convertLatLngToAddress(Context context, double lat, double lng, String errorMessage){
+        try {
+            // Display Current Location
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            List<Address> address;
+            address = geocoder.getFromLocation(lat, lng, 1);
+            return address.get(0).getAddressLine(0);
+        }
+        catch (Exception e)
+        {
+            if(!errorMessage.equals("")) {
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+        return null;
     }
 
     /*public static void showView(List<View> views){

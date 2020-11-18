@@ -51,6 +51,7 @@ public class FCMMsgService extends FirebaseMessagingService {
         Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setLargeIcon(largeIcon)
                 .setContentTitle("SOS!")
                 .setContentText(child_act.child_name + " is in danger!")

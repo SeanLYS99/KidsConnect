@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleService;
 
 import com.example.assignment.Activity.ParentActivity;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.List;
@@ -28,14 +29,17 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
         if(geofencingEvent.hasError()){
-            Log.d(TAG, "onReceive: Error receiving geofence event....");
+            String errorMsg = GeofenceStatusCodes.getStatusCodeString(geofencingEvent.getErrorCode());
+            Log.d(TAG, errorMsg);
             return;
         }
 
-        List<Geofence> geofenceList = geofencingEvent.getTriggeringGeofences();
-        for (Geofence geofence : geofenceList){
+        /*for (Geofence geofence : geofenceList){
             Log.d(TAG, "onReceive: " + geofence.getRequestId());
-        }
+        }*/
+
+        // get transition type
+        List<Geofence> geofenceList = geofencingEvent.getTriggeringGeofences();
         int transition_type = geofencingEvent.getGeofenceTransition();
 
         switch (transition_type){

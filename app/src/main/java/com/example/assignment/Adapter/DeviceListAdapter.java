@@ -56,6 +56,7 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
     public void onBindViewHolder(@NonNull myDeviceListHolder viewHolder, int position, @NonNull deviceModel deviceModel) {
         //deviceModel currentDevice = deviceList.get(position);
         //Log.e("model", deviceModel.getName());
+
         viewHolder.name.setText(deviceModel.getName() + "'s device");
         viewHolder.remove.setOnClickListener(new View.OnClickListener() {
             @Override

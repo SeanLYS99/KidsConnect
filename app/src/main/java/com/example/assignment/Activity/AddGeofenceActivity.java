@@ -82,14 +82,12 @@ import butterknife.OnClick;
 
 public class AddGeofenceActivity extends AppCompatActivity {
 
+    private static final String TAG = "AddGeofenceActivity";
     double lat, lng;
     private GoogleMap mMap;
-    private HashMap<String, Marker> mMarkers = new HashMap<>();
     private LatLng map_location;
     private int RADIUS = 100;
     private Circle circle;
-    private static int AUTOCOMPLETE_REQUEST_CODE = 100;
-    private int address_code = 1;
     private int VALID_ADDRESS_CODE = 1;
     String from_where;
 
@@ -151,23 +149,35 @@ public class AddGeofenceActivity extends AppCompatActivity {
                             seekbar.setProgress(existing_radius - 100);
                         }
                     });
-                    try {
+
+                    map_location = Utils.convertNameToLatLng(AddGeofenceActivity.this, getIntent().getStringExtra("address"), "");
+                    Log.d(TAG, "onMapReady: "+map_location);
+                    if(map_location != null){
+                        setMarker();
+                        addCircle(map_location, getIntent().getIntExtra("radius", 100));
+                    }
+                    /*try {
                         Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                         List<Address> address;
                         address = geocoder.getFromLocationName(getIntent().getStringExtra("address"), 1);
                         Address loc = address.get(0);
                         map_location = new LatLng(loc.getLatitude(), loc.getLongitude());
+
                         setMarker();
                         addCircle(map_location, getIntent().getIntExtra("radius", 100));
                     }
                     catch (Exception e) {
                         Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+
+                    }*/
+                    /*map_location = Utils.convertNameToLatLng(AddGeofenceActivity.this, getIntent().getStringExtra("address"));
+                    if(map_location != null) {
+                        setMarker();
+                        addCircle(map_location, getIntent().getIntExtra("radius", 100));
+                    }*/
                 }
             }
-
             updateMap();
-
         }
     };
 
@@ -183,30 +193,17 @@ public class AddGeofenceActivity extends AppCompatActivity {
         if(Utils.isEmpty(name_input))
         {
             Toast.makeText(getApplicationContext(), "Please give geofence a name", Toast.LENGTH_SHORT).show();
-        }
-
-        if(Utils.isEmpty(name_input) | Utils.isEmpty(input) | VALID_ADDRESS_CODE == 0){
             return;
         }
+
         checkAddress();
 
-        String fulladdress = geocoder(input.getText().toString());
-        updateFirestore(id, name_input.getText().toString(), fulladdress, RADIUS);
-    }
+        if(Utils.isEmpty(input) | VALID_ADDRESS_CODE == 0){
+            Toast.makeText(getApplicationContext(), "Place not found, please provide a proper address.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-    private String geocoder(String input){
-        try {
-            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-            List<Address> location_object;
-            location_object = geocoder.getFromLocationName(input, 1);
-            Address location_details = location_object.get(0);
-            return location_details.getAddressLine(0);
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        return null;
+        updateFirestore(id, name_input.getText().toString(), input.getText().toString(), RADIUS);
     }
 
     private void hideKeyboard()
@@ -267,10 +264,11 @@ public class AddGeofenceActivity extends AppCompatActivity {
                     if(input.getText() != null) {
                         checkAddress();
                     }
-
-                    mMap.clear();
-                    setMarker();
-                    addCircle(map_location, RADIUS);
+                    if(VALID_ADDRESS_CODE == 1) {
+                        mMap.clear();
+                        setMarker();
+                        addCircle(map_location, RADIUS);
+                    }
                 }
             }
         });
@@ -291,7 +289,13 @@ public class AddGeofenceActivity extends AppCompatActivity {
                         lng = location.getLongitude();
                         map_location = new LatLng(lat, lng);
 
-                        try {
+                        String geolocation = Utils.convertLatLngToAddress(AddGeofenceActivity.this, lat, lng, "");
+                        if(geolocation != null){
+                            input.setText(geolocation);
+                            setMarker();
+                            updateCircle();
+                        }
+                        /*try {
                             // Display Current Location
                             Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                             List<Address> address;
@@ -309,7 +313,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
                         catch (Exception e)
                         {
                             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        }*/
                     }
                 }
             });
@@ -352,7 +356,14 @@ public class AddGeofenceActivity extends AppCompatActivity {
     }
 
     private void checkAddress(){
-        try {
+        map_location = Utils.convertNameToLatLng(AddGeofenceActivity.this, input.getText().toString(), "");
+        if(map_location != null){
+            VALID_ADDRESS_CODE = 1;
+        }
+        else{
+            VALID_ADDRESS_CODE = 0;
+        }
+        /*try {
             Geocoder coder = new Geocoder(getApplicationContext(), Locale.getDefault());
             List<Address> address;
             address = coder.getFromLocationName(input.getText().toString(), 1);
@@ -365,12 +376,12 @@ public class AddGeofenceActivity extends AppCompatActivity {
             }
             catch (Exception e) {
                 VALID_ADDRESS_CODE = 0;
-                Toast.makeText(getApplicationContext(), "Place not found, please provide a proper address.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "checkAddress: " + e.getMessage());
             }
         } catch (IOException e) {
             VALID_ADDRESS_CODE = 0;
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+            Log.d(TAG, "Something happen: " + e.getMessage());
+        }*/
     }
 
     private void updateCircle()
