@@ -51,6 +51,6 @@ public class FeaturesFragment extends Fragment {
     public void open_geofence(){
         Intent geofence = new Intent(getActivity(), GeofenceActivity.class);
         startActivity(geofence);
-        getActivity().finish();
+        //getActivity().finish();
     }
 }

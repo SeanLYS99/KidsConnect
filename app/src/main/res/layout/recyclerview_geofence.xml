@@ -45,11 +45,21 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <ImageView
+            android:id="@+id/geofence_deletebtn"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/thin_outlined_delete"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#D3D3D3"
+        android:background="@color/colorSeparator"
         app:layout_constraintTop_toBottomOf="@id/geofence_card"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -85,6 +85,7 @@ public class NotificationsFragment extends Fragment {
 
         View root = localInflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this, root);
+        list.setHasFixedSize(true);
         list.setLayoutManager(new LinearLayoutManager(getContext()));
         //list.setEmptyView(empty);
         setupMsg();
@@ -95,12 +96,11 @@ public class NotificationsFragment extends Fragment {
 
     private void setupMsg(){
         try {
-            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification");
-            CollectionReference doc = db.collection("UserInfo").document(currentUser.getUid()).collection("notification");
+            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification").orderBy("time", Query.Direction.ASCENDING);
+            //CollectionReference doc = db.collection("UserInfo").document(currentUser.getUid()).collection("notification");
             FirestoreRecyclerOptions<notificationModel> options = new FirestoreRecyclerOptions.Builder<notificationModel>()
-                    .setQuery(doc, notificationModel.class)
+                    .setQuery(query, notificationModel.class)
                     .build();
-            Log.e("option9s", options.toString());
             adapter = new NotificationAdapter(options, getActivity());
             list.setEmptyView(empty);
             list.setAdapter(adapter);

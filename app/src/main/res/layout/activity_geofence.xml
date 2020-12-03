@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".Activity.GeofenceActivity">
 
+    <include android:id="@+id/geofence_design"
+        layout="@layout/recyclerview_geofence"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:id="@+id/geofenceTitle"
         android:layout_width="match_parent"
@@ -25,13 +29,23 @@
             android:src="@drawable/ic_baseline_arrow_back_24" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_margin="15dp"
-            android:gravity="center"
+            android:gravity="left|center"
             android:text="Geofences"
             android:textColor="@android:color/black"
+            android:layout_weight="1"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/EditGeofenceBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Edit"
+            android:textColor="@color/mainColor"
+            android:gravity="right|center"
+            android:layout_margin="15dp"/>
 
     </LinearLayout>
 
@@ -39,7 +53,7 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#D3D3D3"
+        android:background="@color/colorSeparator"
         app:layout_constraintTop_toBottomOf="@+id/geofenceTitle" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -69,7 +83,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/addGeofenceBtn">
+            app:layout_constraintBottom_toBottomOf="@+id/geofence_list">
 
             <ImageView
                 android:id="@+id/imageView2"

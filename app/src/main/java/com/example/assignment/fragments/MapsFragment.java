@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.widget.ActionMenuView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -23,6 +25,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -32,6 +36,7 @@ import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.GeofenceHelper;
 import com.example.assignment.R;
+import com.example.assignment.Utils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
@@ -72,10 +77,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.BindView;
+
 import static android.content.ContentValues.TAG;
 
 public class MapsFragment extends Fragment {
 
+    @BindView(R.id.menu) ActionMenuView menu;
     private HashMap<String, Marker> mMarkers = new HashMap<>();
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -87,7 +95,7 @@ public class MapsFragment extends Fragment {
     private static final String TAG = "MapsFragment";
     private int count;
     private double lat, lng;
-    List<Address> address_list;
+    private List<String> item_list = new ArrayList<>();
 
     // Declare list -- need to pass to GeofenceHelper
     List<String> id_list = new ArrayList<>();
@@ -135,6 +143,11 @@ public class MapsFragment extends Fragment {
 
         // clone the inflater using the ContextThemeWrapper
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);*/
+
+        //MenuBuilder menuBuilder = (MenuBuilder) menu.getMenu();
+        item_list.add("Sean");
+        item_list.add("f");
+
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
@@ -322,7 +335,8 @@ public class MapsFragment extends Fragment {
                                         radius_list.add(doc.getLong("radius").intValue());
 
                                         // transfer location name into latlng
-                                        try {
+                                        latlng_list.add(Utils.convertNameToLatLng(getContext(), address, ""));
+                                        /*try {
                                             Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
                                             address_list = geocoder.getFromLocationName(address, 1);
                                             Log.d(TAG, address_list.toString());
@@ -336,7 +350,7 @@ public class MapsFragment extends Fragment {
                                         catch (Exception e) {
                                             Log.d(TAG, "onComplete: false");
                                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
+                                        }*/
                                         firebaseCallBack.onCallback(id_list, latlng_list, radius_list);
                                         Log.d(TAG, "onComplete: yes");
                                     }
@@ -362,20 +376,26 @@ public class MapsFragment extends Fragment {
             // If permission is granted
             // read the list size and send every items inside different list to GeofenceHelper
             for(count = 0; count < latlng_list.size(); count++) {
-                // Add geofence
-                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+                // Set geofence's rule. example: lat,lng,radius,initial trigger ...
+                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
                 GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
                 PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
 
                 // save loop variable into a temp variable, so it won't become 3 in onSuccess method.
                 final int temp = count;
+                // add geofences following the rule
                 geofencingClient.addGeofences(request, pendingIntent)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 // Because geofence doesn't come with an indicator, so add a circle to the map for better user experience
                                 addCircle(latlng_list.get(temp), radius_list.get(temp));
+                                Log.d(TAG, "onSuccess: Geofence Added....");
                             }
+                        })
+                        .addOnFailureListener(e -> {
+                            String errorMsg = geofenceHelper.getErrorString(e);
+                            Log.d(TAG, "onFailure: " + errorMsg);
                         });
             }
         }
@@ -384,5 +404,18 @@ public class MapsFragment extends Fragment {
     // A way to deal with firebase asynchronous API
     private interface FirebaseCallBack{
         void onCallback(List<String> id, List<LatLng> latLngList, List<Integer> radius);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        //
+        //menu.add(0, Menu.FIRST, Menu.NONE, "Amanda");
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
     }
 }

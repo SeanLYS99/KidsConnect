@@ -4,9 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.assignment.NotificationHelper;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -84,6 +89,8 @@ public class PickRoleActivity extends AppCompatActivity {
     @OnClick(R.id.KidsButton)
     public void kid()
     {
+        Intent a = new Intent(PickRoleActivity.this, AutoStartBroadcastReceiver.class);
+        startService(a);
         key = "child";
         progressbar.setVisibility(View.VISIBLE);
         //updateUserInfo(firebaseAuth.getCurrentUser(), "child", key);
@@ -97,6 +104,15 @@ public class PickRoleActivity extends AppCompatActivity {
         Intent back = new Intent(this, LoginActivity.class);
         startActivity(back);
         finish();
+    }
+
+    public static class AutoStartBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            NotificationHelper n = new NotificationHelper(context);
+            n.sendHighPriorityNotification("AUTO START", "SUCCESS", PickRoleActivity.class);
+            Log.e("auto start: ", "works");
+        }
     }
 
     // Parents

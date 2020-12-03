@@ -3,7 +3,9 @@
     <color name="colorPrimary">@color/mainColor</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#ffffff</color>
-    <color name="mainColor">#f5635b</color>
+    <!--<color name="mainColor">#f5635b</color>-->
+    <color name="mainColor">#fd6a02</color>
+    <color name="colorSeparator">#D3D3D3</color>
     <color name="colorDefault">#c5c5c5</color>
     <color name="colorBackground">#fef4f2</color>
     <color name="colorControlActivated">@color/mainColor</color>

@@ -50,6 +50,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -197,14 +198,15 @@ public class ProfileFragment extends Fragment {
             edit_email.setText(firebaseAuth.getCurrentUser().getEmail());
 
             DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());
-            Log.e("oi", docRef.toString());
             docRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.get("userPhotoUrl") != null) {
-                        Glide.with(getActivity())
+                        String url = document.get("userPhotoUrl").toString();
+                        Picasso.get().load(url).into(addImageView);
+                        /*Glide.with(getActivity())
                                 .load(document.get("userPhotoUrl"))
-                                .into(addImageView);
+                                .into(addImageView);*/
                         addIcon.setVisibility(View.GONE);
                     }
                     if (document.get("phone") != null) {

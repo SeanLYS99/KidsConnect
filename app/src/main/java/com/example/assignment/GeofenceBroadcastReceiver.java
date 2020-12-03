@@ -40,14 +40,12 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
         // get transition type
         List<Geofence> geofenceList = geofencingEvent.getTriggeringGeofences();
+        Log.d(TAG, "onReceive: "+geofenceList);
         int transition_type = geofencingEvent.getGeofenceTransition();
 
         switch (transition_type){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 notificationHelper.sendHighPriorityNotification("Geofence ENTERED", "your kid has entered home", ParentActivity.class);
-                break;
-            case Geofence.GEOFENCE_TRANSITION_DWELL:
-                notificationHelper.sendHighPriorityNotification("Geofence DWELL", "your kid has dwell home", ParentActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 notificationHelper.sendHighPriorityNotification("Geofence EXIT", "your kid has exit home", ParentActivity.class);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:id="@+id/custom_actionbar"
+    android:theme="@style/ThemeOverlay.AppCompat.Light"
+    android:elevation="4dp"
+    app:contentInsetStart="0dp"
+    android:background="@android:color/white">
+    
+    <TextView
+        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:id="@+id/toolbar_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:background="@android:color/white"
+        android:text="KidsConnect"/>
+
+</androidx.appcompat.widget.Toolbar>

@@ -1,5 +1,7 @@
 package com.example.assignment.Model;
 
+import android.net.Uri;
+
 public class notificationModel {
     private String content;
     private String date;

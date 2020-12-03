@@ -14,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -35,6 +36,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,13 +66,15 @@ public class ChildActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     public static String child_name;
+    //private Uri icon_uri;
 
     Date calendar_date = Calendar.getInstance().getTime();
 
     SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-    SimpleDateFormat tf = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+    SimpleDateFormat tf = new SimpleDateFormat("HHmm", Locale.getDefault());
     String date = df.format(calendar_date);
     String time = tf.format(calendar_date);
+
 
     SharedPreferences sp;
     //String date = new SimpleDateFormat("yyyy/MM/dd").format(GregorianCalendar.getInstance());
@@ -83,8 +88,8 @@ public class ChildActivity extends AppCompatActivity {
 
         sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
-                new IntentFilter("child_account"));
+        /*LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("child_account"));*/
 
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
         //child_name = getIntent().getStringExtra("child_name");
@@ -210,6 +215,17 @@ public class ChildActivity extends AppCompatActivity {
 
     private void updateFirestore(){
         DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document();
+        /*StorageReference storageReference = storage.getReference().child("icons/notification_danger.png");
+        Log.d(TAG, "updateFirestore: "+storageReference);
+        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                // received image url
+                // store data to firestore
+
+            }
+        });*/
+
         Map<String, Object> notificationMap = new HashMap<>();
         notificationMap.put("title", "SOS!");
         notificationMap.put("content", child_name + " is in danger!");
@@ -230,5 +246,6 @@ public class ChildActivity extends AppCompatActivity {
 
                     }
                 });
+
     }
 }

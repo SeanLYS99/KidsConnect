@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.DeviceListActivity;
@@ -62,27 +63,29 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
             @Override
             public void onClick(View v) {
                 try {
-                    new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
-                            .setTitleText("Are you sure?")
-                            .setContentText("This action cannot be undone. All the data about this device will be cleared. Are you sure to disconnect the device?")
-                            .setConfirmText("Confirm")
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                @Override
-                                public void onClick(SweetAlertDialog sDialog) {
-                                    sDialog.dismissWithAnimation();
-                                    DeviceListActivity.pb.setVisibility(View.VISIBLE);
-                                    DeviceListActivity.deleteRealtimeDatabase(context, deviceModel.getName());
-                                    //DeviceListActivity.deleteSharedPreferences();
-                                }
+                    SweetAlertDialog dialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
+                    dialog.setTitleText("Are you sure?");
+                    dialog.setContentText("This action cannot be undone. All the data about this device will be cleared. Are you sure to disconnect the device?");
+                    dialog.setConfirmText("Confirm");
+                    dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismissWithAnimation();
+                            DeviceListActivity.pb.setVisibility(View.VISIBLE);
+                            DeviceListActivity.deleteRealtimeDatabase(context, deviceModel.getName());
+                            //DeviceListActivity.deleteSharedPreferences();
+                        }
 
-                            })
-                            .setCancelButton("Cancel", new SweetAlertDialog.OnSweetClickListener() {
-                                @Override
-                                public void onClick(SweetAlertDialog sDialog) {
-                                    sDialog.dismissWithAnimation();
-                                }
-                            })
-                            .show();
+                    });
+                    dialog.setCancelButton("Cancel", new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sDialog) {
+                            sDialog.dismissWithAnimation();
+                        }
+                    });
+                    dialog.show();
+                    dialog.findViewById(R.id.confirm_button).setBackgroundColor(ContextCompat.getColor(context, R.color.success_stroke_color));
+                    dialog.findViewById(R.id.cancel_button).setBackgroundColor(ContextCompat.getColor(context, R.color.red_btn_bg_color));
                 }
                 catch (Exception e){
                     Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();

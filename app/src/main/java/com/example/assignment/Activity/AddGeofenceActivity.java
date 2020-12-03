@@ -156,25 +156,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
                         setMarker();
                         addCircle(map_location, getIntent().getIntExtra("radius", 100));
                     }
-                    /*try {
-                        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                        List<Address> address;
-                        address = geocoder.getFromLocationName(getIntent().getStringExtra("address"), 1);
-                        Address loc = address.get(0);
-                        map_location = new LatLng(loc.getLatitude(), loc.getLongitude());
-
-                        setMarker();
-                        addCircle(map_location, getIntent().getIntExtra("radius", 100));
-                    }
-                    catch (Exception e) {
-                        Toast.makeText(AddGeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-
-                    }*/
-                    /*map_location = Utils.convertNameToLatLng(AddGeofenceActivity.this, getIntent().getStringExtra("address"));
-                    if(map_location != null) {
-                        setMarker();
-                        addCircle(map_location, getIntent().getIntExtra("radius", 100));
-                    }*/
                 }
             }
             updateMap();
@@ -185,7 +166,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
     public void back() {
         Intent back = new Intent(this, GeofenceActivity.class);
         startActivity(back);
-        finish();
     }
 
     @OnClick(R.id.SaveGeofenceBtn)
@@ -203,7 +183,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
             return;
         }
 
-        updateFirestore(id, name_input.getText().toString(), input.getText().toString(), RADIUS);
+        updateFirestore(id, name_input.getText().toString(), input.getText().toString(), RADIUS, map_location);
     }
 
     private void hideKeyboard()
@@ -220,12 +200,13 @@ public class AddGeofenceActivity extends AppCompatActivity {
         return true;
     }
 
-    private void updateFirestore(String docID, String name, String address, int radius){
+    private void updateFirestore(String docID, String name, String address, int radius, LatLng loc){
         Map<String, Object> geofencingMap = new HashMap<>();
         geofencingMap.put("radius", radius);
         geofencingMap.put("name", name);
         geofencingMap.put("address", address);
         geofencingMap.put("id", docID);
+        geofencingMap.put("LatLng", loc);
 
         try {
             db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document(docID)
@@ -241,7 +222,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
                             }
                             Intent intent = new Intent(AddGeofenceActivity.this, GeofenceActivity.class);
                             startActivity(intent);
-                            finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
