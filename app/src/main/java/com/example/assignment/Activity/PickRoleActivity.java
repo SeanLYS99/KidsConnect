@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.NotificationCompat;
 
 import android.app.PendingIntent;
@@ -54,7 +55,8 @@ public class PickRoleActivity extends AppCompatActivity {
     @BindView(R.id.ParentsButton) CardView parents;
     @BindView(R.id.KidsButton) CardView kids;
     @BindView(R.id.PickRoleBackButton) ImageButton backbtn;
-    @BindView(R.id.progress_bar) RelativeLayout progressbar;
+    @BindView(R.id.progress_bar)
+    ConstraintLayout progressbar;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore store = FirebaseFirestore.getInstance();
     private FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -76,6 +78,13 @@ public class PickRoleActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         firebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(PickRoleActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @OnClick(R.id.ParentsButton)
@@ -147,6 +156,7 @@ public class PickRoleActivity extends AppCompatActivity {
                             }
                         });
             } catch (Exception e) {
+                Log.d("PickRoleActivity", "saveUserInfo: "+e.getMessage());
                 Toast.makeText(PickRoleActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
         }
@@ -170,6 +180,7 @@ public class PickRoleActivity extends AppCompatActivity {
             }
         }
         catch (Exception e){
+            Log.d("PickRoleActivity", "updateUserInfo: "+e.getMessage());
             Toast.makeText(PickRoleActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }

@@ -1,5 +1,6 @@
 package com.example.assignment.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -51,6 +52,7 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
                 intent.putExtra("radius", model.getRadius());
                 intent.putExtra("documentId", model.getId());
                 context.startActivity(intent);
+                //((Activity) context).finish();
             }
         });
         holder.btn.setOnClickListener(v -> {

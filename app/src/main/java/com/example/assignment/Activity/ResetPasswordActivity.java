@@ -2,10 +2,12 @@ package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -25,6 +27,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     @BindView(R.id.editPasswordEmailText) EditText emailText;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    @BindView(R.id.progress_bar)
+    ConstraintLayout progressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,13 @@ public class ResetPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reset_password);
 
         ButterKnife.bind(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ResetPasswordActivity.this, EditProfileActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @OnClick(R.id.backButton)
@@ -43,6 +54,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     @OnClick(R.id.ResetPasswordSubmitButton)
     public void submit(){
+        progressbar.setVisibility(View.VISIBLE);
         String emailAddress = emailText.getText().toString();
 
         try {
@@ -51,13 +63,15 @@ public class ResetPasswordActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                progressbar.setVisibility(View.GONE);
                                 Utils.SuccessSweetDialog(
                                         ResetPasswordActivity.this,
                                         "Success!",
                                         "We just sent an email to " + emailAddress + " with a link to reset your password \n Please check your inbox to find instructions",
                                         "OK",
-                                        EditProfileActivity.class);
+                                        null);
                             } else {
+                                progressbar.setVisibility(View.GONE);
                                 String error = task.getException().getLocalizedMessage();
                                 Toast.makeText(ResetPasswordActivity.this, error, Toast.LENGTH_SHORT).show();
 
@@ -68,6 +82,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            progressbar.setVisibility(View.GONE);
             Toast.makeText(ResetPasswordActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

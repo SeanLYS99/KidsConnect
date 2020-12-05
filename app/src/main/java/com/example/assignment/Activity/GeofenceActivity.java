@@ -58,10 +58,20 @@ public class GeofenceActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        /*Intent intent = new Intent(GeofenceActivity.this, ParentActivity.class);
+        startActivity(intent);
+        finish();*/
+        super.onBackPressed();
+    }
+
     @OnClick(R.id.geofence_bakcbtn)
     public void back(){
-        Intent back = new Intent(this, ParentActivity.class);
+        /*Intent back = new Intent(this, ParentActivity.class);
         startActivity(back);
+        finish();*/
+        super.onBackPressed();
     }
 
     @OnClick(R.id.addGeofenceBtn)
@@ -69,6 +79,7 @@ public class GeofenceActivity extends AppCompatActivity {
         Intent add = new Intent(this, AddGeofenceActivity.class);
         add.putExtra("UniqueID", "fromAddBtn");
         startActivity(add);
+        //finish();
 
         /*Intent addgeo = new Intent();
         addgeo.setClass(GeofenceActivity.this, AddGeofenceActivity.class);
@@ -127,6 +138,7 @@ public class GeofenceActivity extends AppCompatActivity {
 
         }
         catch (Exception e){
+            Log.d("GeofenceActivity", "setupGeofence: "+e.getMessage());
             Toast.makeText(GeofenceActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

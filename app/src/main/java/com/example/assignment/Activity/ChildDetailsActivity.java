@@ -2,11 +2,13 @@ package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -47,8 +49,8 @@ public class ChildDetailsActivity extends AppCompatActivity {
     @BindView(R.id.ChildNameText) EditText name;
     @BindView(R.id.ChildAgeText) EditText age;
     @BindView(R.id.NextButton) Button nextbtn;
-    @BindView(R.id.cd_progress_bar)
-    RelativeLayout pb;
+    @BindView(R.id.cd_progress_bar) ConstraintLayout pb;
+
     private SharedPreferences sp;
     public Map<String, Object> userMap = new HashMap<>();
 
@@ -78,6 +80,18 @@ public class ChildDetailsActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        if(getIntent().getStringExtra("fromDeviceList").equals("yes")){
+            super.onBackPressed();
+        }
+        else {
+            Intent intent = new Intent(ChildDetailsActivity.this, PickRoleActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     @OnClick(R.id.NextButton)
     public void next(){
         pb.setVisibility(View.VISIBLE);
@@ -90,9 +104,14 @@ public class ChildDetailsActivity extends AppCompatActivity {
 
     @OnClick(R.id.ChildDetailsBackButton)
     public void back(){
-        Intent back = new Intent(ChildDetailsActivity.this, PickRoleActivity.class);
-        startActivity(back);
-        finish();
+        if(getIntent().getStringExtra("fromDeviceList").equals("yes")){
+            super.onBackPressed();
+        }
+        else {
+            Intent back = new Intent(ChildDetailsActivity.this, PickRoleActivity.class);
+            startActivity(back);
+            finish();
+        }
     }
 
     @OnTextChanged(value = R.id.ChildNameText, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -127,6 +146,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
             child.putExtra("child_name", name);
             startActivity(child);
             finish();
+
             /*db.collection("UserInfo")
                     .document(userUID)
                     .set(userMap, SetOptions.merge())
@@ -148,7 +168,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
                     });*/
         }
         catch (Exception e){
-            Toast.makeText(ChildDetailsActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            Log.d("ChildDetailsActivity", "saveChildInfo Error: "+e.getMessage());
         }
     }
 
@@ -172,6 +192,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
             }
         }
         catch (Exception e){
+            Log.d("ChildDetailsActivity", "updateChildInfo: "+e.getMessage());
             Toast.makeText(ChildDetailsActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }

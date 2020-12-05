@@ -55,6 +55,8 @@ public class ParentActivity extends AppCompatActivity {
     //@BindView(R.id.progress_bar_parent) FrameLayout pb;
     @BindView(R.id.bottomNavView) BottomNavigationView navView;
     @BindView(R.id.parent_toolbar) Toolbar toolbar;
+    enum ENUM {HOME, FEATURES, NOTIFICATIONS, PROFILE};
+    ENUM temp;
     TextView toolbar_title;
     private Fragment f1;
     private final Fragment f2 = new FeaturesFragment();
@@ -179,6 +181,9 @@ public class ParentActivity extends AppCompatActivity {
             }
         });*/
 
+        if(getIntent().getStringExtra("fragmentNo") != null){
+            fragmentManager.beginTransaction().replace(R.id.fragNavHost, f3).commit();
+        }
         //setupView();
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavView);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
@@ -252,6 +257,7 @@ public class ParentActivity extends AppCompatActivity {
                     case R.id.navigation_home:
                         previousFragment = selectedFragment;
                         selectedFragment = f1;
+                        temp = ENUM.HOME;
                         toolbar_title.setText("KidsConnect");
                         //ActionBar actionBar = getSupportActionBar();
                         //actionBar.setTitle(Html.fromHtml(getColoredSpanned("Kids", "#000000") + getColoredSpanned("Connect", "#000000")));
@@ -270,6 +276,7 @@ public class ParentActivity extends AppCompatActivity {
                     case R.id.navigation_dashboard:
                         previousFragment = selectedFragment;
                         selectedFragment = f2;
+                        temp = ENUM.FEATURES;
                         toolbar_title.setText("Features");
                         //ActionBar action_bar = getSupportActionBar();
                         //action_bar.setTitle(Html.fromHtml(getColoredSpanned("Features", "#000000")));
@@ -277,6 +284,7 @@ public class ParentActivity extends AppCompatActivity {
                     case R.id.navigation_notifications:
                         previousFragment = selectedFragment;
                         selectedFragment = f3;
+                        temp = ENUM.NOTIFICATIONS;
                         toolbar_title.setText("Notifications");
                         //ActionBar action = getSupportActionBar();
                         //action.setTitle(Html.fromHtml(getColoredSpanned("<center>Notifications</center>", "#000000")));
@@ -284,6 +292,7 @@ public class ParentActivity extends AppCompatActivity {
                     case R.id.navigation_profile:
                         previousFragment = selectedFragment;
                         selectedFragment = f4;
+                        temp = ENUM.PROFILE;
                         toolbar_title.setText("Profile");
                         //ActionBar acbar = getSupportActionBar();
                         //acbar.setTitle(Html.fromHtml(getColoredSpanned("<b>Profile</b>", "#000000")));
@@ -303,4 +312,10 @@ public class ParentActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavView, navController);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //fragmentManager.beginTransaction().show(f3).commit();
+        Log.d(TAG, "onResume: "+temp);
+    }
 }

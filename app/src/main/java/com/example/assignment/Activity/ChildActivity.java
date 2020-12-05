@@ -70,10 +70,10 @@ public class ChildActivity extends AppCompatActivity {
 
     Date calendar_date = Calendar.getInstance().getTime();
 
-    SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-    SimpleDateFormat tf = new SimpleDateFormat("HHmm", Locale.getDefault());
-    String date = df.format(calendar_date);
-    String time = tf.format(calendar_date);
+    SimpleDateFormat df = new SimpleDateFormat("d/MM/yyyy HHmm", Locale.getDefault());
+    //SimpleDateFormat tf = new SimpleDateFormat("HHmm", Locale.getDefault());
+    String datetime = df.format(calendar_date);
+    //String time = tf.format(calendar_date);
 
 
     SharedPreferences sp;
@@ -118,6 +118,7 @@ public class ChildActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            Log.d(TAG, "onCreate: "+e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -148,6 +149,7 @@ public class ChildActivity extends AppCompatActivity {
             }
         }
         catch (Exception e){
+            Log.d(TAG, "onRequestPermissionsResult: "+e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -182,6 +184,7 @@ public class ChildActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            Log.d(TAG, "SOS: "+e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -208,13 +211,15 @@ public class ChildActivity extends AppCompatActivity {
                 return params;
             }
         };
+        updateFirestore();
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
 
-        updateFirestore();
+
     }
 
     private void updateFirestore(){
-        DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document();
+        String id = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("notification").document().getId();
+        DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document(id);
         /*StorageReference storageReference = storage.getReference().child("icons/notification_danger.png");
         Log.d(TAG, "updateFirestore: "+storageReference);
         storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -227,10 +232,12 @@ public class ChildActivity extends AppCompatActivity {
         });*/
 
         Map<String, Object> notificationMap = new HashMap<>();
+        notificationMap.put("id", id);
+        notificationMap.put("isClicked", "false");
         notificationMap.put("title", "SOS!");
         notificationMap.put("content", child_name + " is in danger!");
-        notificationMap.put("date", date);
-        notificationMap.put("time", time);
+        notificationMap.put("datetime", datetime);
+        //notificationMap.put("time", time);
         notificationMap.put("name", child_name);
 
         doc.set(notificationMap, SetOptions.merge())

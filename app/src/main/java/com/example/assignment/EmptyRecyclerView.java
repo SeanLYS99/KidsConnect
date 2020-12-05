@@ -2,6 +2,7 @@ package com.example.assignment;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ public class EmptyRecyclerView extends RecyclerView {
         public void onItemRangeRemoved(int positionStart, int itemCount) {
             checkIfEmpty();
         }
+
     };
 
     public EmptyRecyclerView(Context context) {
@@ -44,6 +46,7 @@ public class EmptyRecyclerView extends RecyclerView {
         if (emptyView != null && getAdapter() != null) {
             if(getAdapter().getItemCount() == 0)
             {
+                Log.d("empty", " : yes");
                 setVisibility(View.GONE);
                 emptyView.setVisibility(View.VISIBLE);
             }

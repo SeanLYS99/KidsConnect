@@ -90,6 +90,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
     private Circle circle;
     private int VALID_ADDRESS_CODE = 1;
     String from_where;
+    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 102;
 
     // Firebase
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -164,8 +165,10 @@ public class AddGeofenceActivity extends AppCompatActivity {
 
     @OnClick(R.id.addGeofenceBackBtn)
     public void back() {
-        Intent back = new Intent(this, GeofenceActivity.class);
+        /*Intent back = new Intent(this, GeofenceActivity.class);
         startActivity(back);
+        finish();*/
+        super.onBackPressed();
     }
 
     @OnClick(R.id.SaveGeofenceBtn)
@@ -215,13 +218,16 @@ public class AddGeofenceActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             if(from_where.equals("fromAddBtn")) {
-                                Toast.makeText(getApplicationContext(), "Geofence Added Successfully", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getApplicationContext(), "Geofence Added Successfully", Toast.LENGTH_SHORT).show();
+                                Utils.SuccessSweetDialog(AddGeofenceActivity.this, "Success!", "Geofence added successfully.", "OK", null);
                             }
                             else{
-                                Toast.makeText(getApplicationContext(), "Geofence Updated Successfully", Toast.LENGTH_SHORT).show();
+                                Utils.SuccessSweetDialog(AddGeofenceActivity.this, "Success!", "Geofence updated successfully", "OK", null);
                             }
-                            Intent intent = new Intent(AddGeofenceActivity.this, GeofenceActivity.class);
+                            /*Intent intent = new Intent(AddGeofenceActivity.this, GeofenceActivity.class);
+                            intent.putExtra("fromAddGeofence", "yes");
                             startActivity(intent);
+                            finish();*/
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -258,6 +264,40 @@ public class AddGeofenceActivity extends AppCompatActivity {
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
+        
+        if(Build.VERSION.SDK_INT >= 29) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                // Request location updates and when an update is
+                // received, store the location in Firebase
+                client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if(location != null){
+                            lat = location.getLatitude();
+                            lng = location.getLongitude();
+                            map_location = new LatLng(lat, lng);
+
+                            String geolocation = Utils.convertLatLngToAddress(AddGeofenceActivity.this, lat, lng, "");
+                            if(geolocation != null){
+                                input.setText(geolocation);
+                                setMarker();
+                                updateCircle();
+                            }
+                        }
+                    }
+                });
+            }
+            else if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+                // show a permission request dialog
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+            }
+            else{
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+            }
+        }
+        
         if (permission == PackageManager.PERMISSION_GRANTED) {
             // Request location updates and when an update is
             // received, store the location in Firebase
@@ -275,25 +315,6 @@ public class AddGeofenceActivity extends AppCompatActivity {
                             setMarker();
                             updateCircle();
                         }
-                        /*try {
-                            // Display Current Location
-                            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                            List<Address> address;
-                            address = geocoder.getFromLocation(lat, lng, 1);
-                            String geolocation = address.get(0).getAddressLine(0);
-                            input.setText(geolocation);
-
-                            // Add Marker
-                            setMarker();
-
-                            // Update or Add Circle
-                            updateCircle();
-
-                        }
-                        catch (Exception e)
-                        {
-                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }*/
                     }
                 }
             });

@@ -3,6 +3,7 @@ package com.example.assignment.fragments.notifications;
 import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,8 +24,10 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.assignment.Activity.DeviceListActivity;
+import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.Adapter.NotificationAdapter;
 import com.example.assignment.EmptyRecyclerView;
 import com.example.assignment.Model.deviceModel;
@@ -49,19 +52,27 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.protobuf.Empty;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.content.ContentValues.TAG;
 
 public class NotificationsFragment extends Fragment {
 
     @BindView(R.id.noticeRecyclerView)
     EmptyRecyclerView list;
     @BindView(R.id.emptyNoticeDisplay) ConstraintLayout empty;
+    @BindView(R.id.pull_to_refresh)
+    SwipeRefreshLayout refresh;
     /*@BindView(R.id.noticeList) CardView list;
     @BindView(R.id.notice_date) TextView date;
     @BindView(R.id.notice_title) TextView title;
@@ -85,10 +96,19 @@ public class NotificationsFragment extends Fragment {
 
         View root = localInflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this, root);
+
         list.setHasFixedSize(true);
         list.setLayoutManager(new LinearLayoutManager(getContext()));
         //list.setEmptyView(empty);
         setupMsg();
+
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getFragmentManager().beginTransaction().detach(NotificationsFragment.this).attach(NotificationsFragment.this).commit(); // recreate fragment
+                refresh.setRefreshing(false);
+            }
+        });
 
         return root;
     }
@@ -96,7 +116,7 @@ public class NotificationsFragment extends Fragment {
 
     private void setupMsg(){
         try {
-            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification").orderBy("time", Query.Direction.ASCENDING);
+            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification").orderBy("datetime", Query.Direction.DESCENDING);
             //CollectionReference doc = db.collection("UserInfo").document(currentUser.getUid()).collection("notification");
             FirestoreRecyclerOptions<notificationModel> options = new FirestoreRecyclerOptions.Builder<notificationModel>()
                     .setQuery(query, notificationModel.class)
@@ -104,6 +124,7 @@ public class NotificationsFragment extends Fragment {
             adapter = new NotificationAdapter(options, getActivity());
             list.setEmptyView(empty);
             list.setAdapter(adapter);
+            Log.d(TAG, "setupMsg: yes");
 
             /*doc.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
@@ -145,6 +166,7 @@ public class NotificationsFragment extends Fragment {
         }
         catch (Exception e)
         {
+            Log.d(TAG, "setupMsg: "+e.getMessage());
             Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }

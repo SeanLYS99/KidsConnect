@@ -33,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Transparent Status Bar
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
         sp = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
         sp_child = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
         new Handler().postDelayed(new Runnable(){
@@ -91,7 +95,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }*/
-        if (user != null && userType.contains("parents"))
+        Log.d("TAG", "UserType: "+userType);
+        Log.d("TAGa", "user: "+user);
+        if (user != null && userType.contains("parents")) // make sure it is parent logging in
         {
             Intent intent = new Intent(MainActivity.this, ParentActivity.class);
             startActivity(intent);

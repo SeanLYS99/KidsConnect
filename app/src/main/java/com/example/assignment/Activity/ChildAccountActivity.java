@@ -58,6 +58,13 @@ public class ChildAccountActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ChildAccountActivity.this, PickRoleActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     @OnClick(R.id.extended_fab)
     public void new_device(){
         Intent intent = new Intent(this, ChildDetailsActivity.class);

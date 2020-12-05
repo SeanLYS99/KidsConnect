@@ -10,9 +10,6 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar_wide"/>
 
-    <include
-        android:id="@+id/progress_bar"
-        layout="@layout/progressbar"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -97,6 +94,11 @@
         app:rippleColor="@color/colorPrimaryDark"
         style="?android:attr/borderlessButtonStyle"
         android:text="  Sign Up  "/>
+
+    <include
+        android:id="@+id/progress_bar"
+        layout="@layout/progressbar"/>
+
 </RelativeLayout>
 
     <!--LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

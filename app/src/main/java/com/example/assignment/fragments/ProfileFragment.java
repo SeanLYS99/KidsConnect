@@ -34,6 +34,7 @@ import com.example.assignment.Activity.EditProfileActivity;
 import com.example.assignment.Activity.GeofenceActivity;
 import com.example.assignment.Activity.LoginActivity;
 import com.example.assignment.R;
+import com.example.assignment.fragments.notifications.NotificationsFragment;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -61,6 +62,7 @@ import butterknife.OnClick;
 import io.grpc.InternalNotifyOnServerBuild;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.ContentValues.TAG;
 
 public class ProfileFragment extends Fragment {
 
@@ -99,7 +101,7 @@ public class ProfileFragment extends Fragment {
         ButterKnife.bind(this, root);
 
         mStorageRef = FirebaseStorage.getInstance().getReference("users_photo");
-        sp = this.getActivity().getSharedPreferences("com.example.assignment", Context.MODE_PRIVATE);
+        sp = this.getActivity().getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
         loadUser();
         return root;
     }
@@ -127,6 +129,7 @@ public class ProfileFragment extends Fragment {
             progressbar.setVisibility(View.INVISIBLE);
         }
         catch (Exception e){
+            Log.d(TAG, "signOut: "+e.getMessage());
             Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
         }
 
@@ -217,6 +220,7 @@ public class ProfileFragment extends Fragment {
             });
         }
         catch (Exception e){
+            Log.d(TAG, "loadUser: "+e.getMessage());
             Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -322,6 +326,14 @@ public class ProfileFragment extends Fragment {
         ContentResolver cR = getActivity().getApplicationContext().getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //loadUser();
+        //getFragmentManager().beginTransaction().detach(ProfileFragment.this).attach(ProfileFragment.this).commit();
+        Log.d(TAG, "onResume: ");
     }
 
     /*@Override

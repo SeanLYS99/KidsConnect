@@ -51,9 +51,14 @@ public class Utils {
                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog sweetAlertDialog) {
-                        Intent back_to_login = new Intent(sweetAlertDialog.getContext(), ActivityToOpen);
-                        sweetAlertDialog.getContext().startActivity(back_to_login);
-                        ((Activity) sweetAlertDialog.getContext()).finish();
+                        if(ActivityToOpen != null) {
+                            Intent back_to_login = new Intent(sweetAlertDialog.getContext(), ActivityToOpen);
+                            sweetAlertDialog.getContext().startActivity(back_to_login);
+                            ((Activity) sweetAlertDialog.getContext()).finish();
+                        }
+                        else{
+                            sweetAlertDialog.dismissWithAnimation();
+                        }
                     }
                 })
                 .show();

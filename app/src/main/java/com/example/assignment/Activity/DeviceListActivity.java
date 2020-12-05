@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.assignment.Adapter.DeviceListAdapter;
@@ -55,8 +56,11 @@ public class DeviceListActivity extends AppCompatActivity {
 
     @BindView(R.id.emptyDeviceDisplay) ConstraintLayout empty_icon;
     @BindView(R.id.progressbar_device) ConstraintLayout pb_icon;
+    @BindView(R.id.device_list_toolbar) ConstraintLayout toolbar;
+    @BindView(R.id.custom_toolbar_title) TextView title;
     @BindView(R.id.deviceListRecyclerView)
     EmptyRecyclerView list;
+    TextView toolbar_title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,10 @@ public class DeviceListActivity extends AppCompatActivity {
         empty = findViewById(R.id.emptyDeviceDisplay);
         sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
         ButterKnife.bind(this);
+
+        //toolbar_title = toolbar.findViewById(R.id.custom_toolbar_holder).findViewById(R.id.custom_toolbar_title);
+        toolbar_title = title;
+        toolbar_title.setText("Registered Devices");
         list.setLayoutManager(new LinearLayoutManager(this));
         setupDevice();
     }
@@ -89,6 +97,7 @@ public class DeviceListActivity extends AppCompatActivity {
             Log.e("refer", ref.toString());
         }
         catch (Exception e){
+            Log.d("DeviceListActivity", "deleteRealtimeDatabase: "+e.getMessage());
             Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -116,6 +125,7 @@ public class DeviceListActivity extends AppCompatActivity {
             });
         }
         catch (Exception e){
+            Log.d("DeviceListActivity", "deleteFirestore: "+e.getMessage());
             Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -127,18 +137,20 @@ public class DeviceListActivity extends AppCompatActivity {
         empty.setVisibility(View.VISIBLE);
     }
 
-    @OnClick(R.id.imageButton)
+    @OnClick(R.id.custom_toolbar_back)
     public void back(){
-        Intent back = new Intent(DeviceListActivity.this, ParentActivity.class);
+        super.onBackPressed();
+        /*Intent back = new Intent(DeviceListActivity.this, ParentActivity.class);
         startActivity(back);
-        finish();
+        finish();*/
     }
 
     @OnClick(R.id.devicelist_fab)
     public void add_Device(){
         Intent add = new Intent(this, ChildDetailsActivity.class);
+        add.putExtra("fromDeviceList","yes");
         startActivity(add);
-        finish();
+        //finish();
     }
 
     private void setupDevice(){

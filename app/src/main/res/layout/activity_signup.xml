@@ -8,13 +8,7 @@
 
     <include
         android:id="@+id/SignUpToolbar"
-        layout="@layout/toolbar">
-
-    </include>
-
-    <include
-        android:id="@+id/progress_bar"
-        layout="@layout/progressbar"/>
+        layout="@layout/toolbar"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -154,5 +148,9 @@
             style="?android:attr/borderlessButtonStyle"
             android:text="@string/login"/>
     </LinearLayout>
+
+    <include
+        android:id="@+id/progress_bar"
+        layout="@layout/progressbar"/>
 
 </RelativeLayout>

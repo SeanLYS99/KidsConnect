@@ -18,6 +18,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.assignment.Activity.ChildActivity;
 import com.example.assignment.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -25,7 +28,9 @@ import java.util.Random;
 
 public class FCMMsgService extends FirebaseMessagingService {
     private final String ADMIN_CHANNEL_ID ="admin_channel";
-    ChildActivity child_act = new ChildActivity();
+    ChildActivity child_act;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -48,6 +53,7 @@ public class FCMMsgService extends FirebaseMessagingService {
         Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
                 R.mipmap.ic_launcher);
 
+        //DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("notification").document()
         Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)

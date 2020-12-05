@@ -8,10 +8,6 @@
     tools:context=".Activity.PickRoleActivity">
 
     <include
-        android:id="@+id/progress_bar"
-        layout="@layout/progressbar" />
-
-    <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
@@ -106,4 +102,8 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
+
+    <include
+        android:id="@+id/progress_bar"
+        layout="@layout/progressbar"/>
 </RelativeLayout>

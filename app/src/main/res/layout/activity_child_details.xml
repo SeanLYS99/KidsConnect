@@ -8,13 +8,7 @@
 
     <include
         android:id="@+id/ChildDetailsToolbar"
-        layout="@layout/toolbar">
-
-    </include>
-
-    <include
-        android:id="@+id/cd_progress_bar"
-        layout="@layout/progressbar"/>
+        layout="@layout/toolbar"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -102,5 +96,9 @@
         android:textColor="@android:color/white"
         android:textAllCaps="false"
         android:text="Next"/>
+
+    <include
+        android:id="@+id/cd_progress_bar"
+        layout="@layout/progressbar"/>
 
 </RelativeLayout>

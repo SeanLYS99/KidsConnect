@@ -32,6 +32,7 @@ import butterknife.OnClick;
 
 public class EditProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "EditProfileActivity";
     @BindView(R.id.textInputLayout_email) TextInputLayout emailLayout;
     @BindView(R.id.textInputLayout_pw) TextInputLayout passwordLayout;
     @BindView(R.id.textInputLayout_username) TextInputLayout usernameLayout;
@@ -69,7 +70,7 @@ public class EditProfileActivity extends AppCompatActivity {
     public void password(){
         Intent intent = new Intent(EditProfileActivity.this, ResetPasswordActivity.class);
         startActivity(intent);
-        //finish();
+        finish();
     }
 
     @OnClick(R.id.edit_phone)
@@ -80,9 +81,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
     @OnClick(R.id.backButton)
     public void back(){
-        Intent intent = new Intent(EditProfileActivity.this, ParentActivity.class);
+        /*Intent intent = new Intent(EditProfileActivity.this, ParentActivity.class);
         startActivity(intent);
-        finish();
+        finish();*/
+        super.onBackPressed();
     }
 
     @OnClick(R.id.SaveChangesButton)
@@ -112,6 +114,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            Log.d(TAG, "save: "+e.getMessage());
             Toast.makeText(EditProfileActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -138,6 +141,8 @@ public class EditProfileActivity extends AppCompatActivity {
         }
         catch (Exception e)
         {
+            Log.d(TAG, "loadData: "+e.getMessage());
+
             Toast.makeText(EditProfileActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -152,7 +157,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             progressbar.setVisibility(View.INVISIBLE);
                             email.setEnabled(false);
                             phone.setEnabled(false);
-                            Utils.SuccessSweetDialog(EditProfileActivity.this, "Success!", "Your personal details have been updated.", "OK", EditProfileActivity.class);
+                            Utils.SuccessSweetDialog(EditProfileActivity.this, "Success!", "Your personal details have been updated.", "OK", null);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -164,6 +169,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     });
         }
         catch (Exception e){
+            Log.d(TAG, "saveUserInfo: "+e.getMessage());
             Toast.makeText(EditProfileActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }

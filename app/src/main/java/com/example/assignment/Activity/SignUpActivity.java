@@ -3,6 +3,7 @@ package com.example.assignment.Activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
@@ -59,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
     @BindView(R.id.SignUpConfirmPasswordText) EditText cpassword;
     @BindView(R.id.SignUpButton2) Button signupBtn;
     @BindView(R.id.LoginButton2) Button loginBtn;
-    @BindView(R.id.progress_bar) RelativeLayout progressbar;
+    @BindView(R.id.progress_bar) ConstraintLayout progressbar;
     @BindView(R.id.SignUpBackButton) ImageButton backbtn;
 
     private FirebaseAuth firebaseAuth;
@@ -76,6 +77,13 @@ public class SignUpActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         firebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     // Hide keyboard after user clicking somewhere
