@@ -64,7 +64,7 @@ public class Utils {
                 .show();
     }
 
-    public static void WarningSweetDialog(Context activity, String title, String content, String confirm, ConstraintLayout pb){
+    public static void WarningSweetDialog(Context activity, String title, String content, String confirm, ConstraintLayout pb, String success_msg, String name){ //Child's device has been disconnected.
         new SweetAlertDialog(activity, SweetAlertDialog.WARNING_TYPE)
                 .setTitleText(String.valueOf(title))
                 .setContentText(String.valueOf(content))
@@ -74,7 +74,10 @@ public class Utils {
                     public void onClick(SweetAlertDialog sDialog) {
                         sDialog.dismissWithAnimation();
                         pb.setVisibility(View.VISIBLE);
-                        Utils.SuccessSweetDialog(activity, "Success!", "Child's device has been disconnected.", "OK", ParentActivity.class);
+                        Log.d("SuccessSweetDialog", "onClick: "+name);
+                        sDialog.changeAlertType(SweetAlertDialog.SUCCESS_TYPE);
+                        pb.setVisibility(View.GONE);
+                        //Utils.SuccessSweetDialog(activity, "Success!", success_msg, "OK", ParentActivity.class);
                     }
 
                 })

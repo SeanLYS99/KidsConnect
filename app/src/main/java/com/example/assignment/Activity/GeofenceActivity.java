@@ -38,9 +38,12 @@ public class GeofenceActivity extends AppCompatActivity {
 
     @BindView(R.id.geofence_list) EmptyRecyclerView list;
     @BindView(R.id.geofence_emptyview) ConstraintLayout emptyView;
-    @BindView(R.id.EditGeofenceBtn) TextView edit_btn;
     @BindView(R.id.geofence_design) ConstraintLayout design;
+    @BindView(R.id.geofence_deletebtn) ImageView delete;
+    @BindView(R.id.custom_toolbar_title) TextView title;
+    //@BindView(R.id.geofence_pb) public static ConstraintLayout pb;
 
+    public static ConstraintLayout pb;
     private GeofencingAdapter adapter;
     private int GEOFENCE_STATUS = 1;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -53,6 +56,8 @@ public class GeofenceActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        title.setText("Geofences");
+        pb = findViewById(R.id.geofence_pb);
         list.setLayoutManager(new LinearLayoutManager(this));
         setupGeofence();
 
@@ -66,7 +71,7 @@ public class GeofenceActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    @OnClick(R.id.geofence_bakcbtn)
+    @OnClick(R.id.custom_toolbar_back)
     public void back(){
         /*Intent back = new Intent(this, ParentActivity.class);
         startActivity(back);
@@ -87,25 +92,16 @@ public class GeofenceActivity extends AppCompatActivity {
         GeofenceActivity.this.startActivity(addgeo);*/
     }
 
-    @OnClick(R.id.EditGeofenceBtn)
+    /*@OnClick(R.id.EditGeofenceBtn)
     public void edit(){
-        ImageView next_btn = design.findViewById(R.id.geofence_nextbtn);
         ImageView delete_btn = design.findViewById(R.id.geofence_deletebtn);
         if(edit_btn.getText().equals("Edit")) {
-            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //next_btn.setImageDrawable(getResources().getDrawable(R.drawable.thin_outlined_delete, getApplicationContext().getTheme()));
-                //next_btn.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.thin_outlined_delete));
-                next_btn.setVisibility(View.GONE);
-                delete_btn.setVisibility(View.VISIBLE);
-            } else {
-                //next_btn.setImageDrawable(getResources().getDrawable(R.drawable.thin_outlined_delete));
-                //next_btn.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.thin_outlined_delete));
-                next_btn.setVisibility(View.GONE);
-                delete_btn.setVisibility(View.VISIBLE);
-            }*/
-            next_btn.setVisibility(View.GONE);
-            delete_btn.setVisibility(View.VISIBLE);
+
+            delete.setVisibility(View.VISIBLE);
             edit_btn.setText("Save");
+
+            list.setLayoutManager(new LinearLayoutManager(this));
+            setupGeofence();
             GEOFENCE_STATUS = 0;
         }
         else{
@@ -113,17 +109,15 @@ public class GeofenceActivity extends AppCompatActivity {
                 //next_btn.setImageDrawable(getResources().getDrawable(R.drawable.thin_outlined_right_arrow, getApplicationContext().getTheme()));
                 //next_btn.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.thin_outlined_right_arrow));
                 delete_btn.setVisibility(View.GONE);
-                next_btn.setVisibility(View.VISIBLE);
             } else {
                 //next_btn.setImageDrawable(getResources().getDrawable(R.drawable.thin_outlined_right_arrow));
                 //next_btn.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.thin_outlined_right_arrow));
                 delete_btn.setVisibility(View.GONE);
-                next_btn.setVisibility(View.VISIBLE);
             }
             edit_btn.setText("Edit");
             GEOFENCE_STATUS = 1;
         }
-    }
+    }*/
 
     private void setupGeofence(){
         try{

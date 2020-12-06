@@ -4,7 +4,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ProxyInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,12 +80,12 @@ public class ProfileFragment extends Fragment {
     @BindView(R.id.edit_phone) TextView edit_phone;
     @BindView(R.id.circularImageView) CircularImageView addImageView;
     @BindView(R.id.AddProfilePic) ImageButton addIcon;
+    @BindView(R.id.refresh) SwipeRefreshLayout refresh;
 
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     SharedPreferences sp;
-    private String user = currentUser.getDisplayName();
     private static final int GALLERY_REQUEST_CODE = 1;
     private Uri mImageUri;
     private UploadTask uploadTask;
@@ -103,6 +107,23 @@ public class ProfileFragment extends Fragment {
         mStorageRef = FirebaseStorage.getInstance().getReference("users_photo");
         sp = this.getActivity().getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
         loadUser();
+
+        refresh.setOnRefreshListener(() -> {
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            if (Build.VERSION.SDK_INT >= 26) {
+                transaction.setReorderingAllowed(false);
+            }
+            getFragmentManager().beginTransaction().detach(ProfileFragment.this).attach(ProfileFragment.this).commit(); // recreate fragment
+            //loadUser();
+            /*try {
+                getFragmentManager().beginTransaction().(R.id.fragNavHost, ProfileFragment.class.newInstance()).commit();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (java.lang.InstantiationException e) {
+                e.printStackTrace();
+            }*/
+            refresh.setRefreshing(false);
+        });
         return root;
     }
 
@@ -195,9 +216,9 @@ public class ProfileFragment extends Fragment {
 
     private void loadUser(){
         try {
-            username.setText(user);
+            username.setText(firebaseAuth.getCurrentUser().getDisplayName());
             email.setText(firebaseAuth.getCurrentUser().getEmail());
-            edit_name.setText(user);
+            edit_name.setText(firebaseAuth.getCurrentUser().getDisplayName());
             edit_email.setText(firebaseAuth.getCurrentUser().getEmail());
 
             DocumentReference docRef = db.collection("UserInfo").document(currentUser.getUid());

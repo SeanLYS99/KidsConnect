@@ -13,8 +13,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -28,9 +30,15 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.assignment.MySingleton;
 import com.example.assignment.R;
 import com.example.assignment.Service.TrackerService;
+import com.example.assignment.Utils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -65,7 +73,10 @@ public class ChildActivity extends AppCompatActivity {
     final String TAG = "NOTIFICATION TAG";
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
     public static String child_name;
+    private Map<String, Object> locMap = new HashMap<>();
+    private static int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 101;
     //private Uri icon_uri;
 
     Date calendar_date = Calendar.getInstance().getTime();
@@ -132,8 +143,65 @@ public class ChildActivity extends AppCompatActivity {
     };
 
     private void startTrackerService() {
-        startService(new Intent(this, TrackerService.class));
+        //startService(new Intent(this, TrackerService.class));
         //finish();
+
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
+        int permission = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if(Build.VERSION.SDK_INT >= 29) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                // Request location updates and when an update is
+                // received, store the location in Firebase
+                client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if(location != null){
+                            try {
+                                locMap.put("latitude", location.getLatitude());
+                                locMap.put("longitude", location.getLongitude());
+                                DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name).child("location");
+                                ref.updateChildren(locMap);
+                            }
+                            catch (Exception e){
+                                Log.d(TAG, "getLocation error: "+e.getMessage());
+                            }
+                        }
+                    }
+                });
+            }
+            else if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+                // show a permission request dialog
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+            }
+            else{
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+            }
+        }
+
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            // Request location updates and when an update is
+            // received, store the location in Firebase
+            client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if(location != null){
+                        try {
+                            locMap.put("latitude", location.getLatitude());
+                            locMap.put("longitude", location.getLongitude());
+                            DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name).child("location");
+                            ref.updateChildren(locMap);
+                        }
+                        catch (Exception e){
+                            Log.d(TAG, "getLocation error: "+e.getMessage());
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override

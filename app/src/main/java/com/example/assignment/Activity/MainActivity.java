@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         },SPLASH_TIME_OUT);
 
         // FullScreen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
     }
 

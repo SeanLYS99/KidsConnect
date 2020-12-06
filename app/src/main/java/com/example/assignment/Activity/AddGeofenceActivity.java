@@ -102,15 +102,19 @@ public class AddGeofenceActivity extends AppCompatActivity {
 
     @BindView(R.id.geofence_location_input) TextInputEditText input;
     @BindView(R.id.geofence_name_input) TextInputEditText name_input;
-    @BindView(R.id.add_geofence_title) TextView title;
+    @BindView(R.id.custom_toolbar_title) TextView title;
     @BindView(R.id.seekBar1) SeekBar seekbar;
     @BindView(R.id.radius) TextView radius;
+    @BindView(R.id.custom_toolbar_options) TextView options;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_geofence);
         ButterKnife.bind(this);
+
+        options.setVisibility(View.VISIBLE);
+        options.setText("Save");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.geofence_map);
@@ -130,6 +134,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
             from_where = getIntent().getStringExtra("UniqueID");
             if(getIntent() != null) {
                 if (from_where.equals("fromAddBtn")) {
+                    title.setText("Add Geofence");
                     drawMap();
                     updateMap();
                 }
@@ -163,7 +168,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
         }
     };
 
-    @OnClick(R.id.addGeofenceBackBtn)
+    @OnClick(R.id.custom_toolbar_back)
     public void back() {
         /*Intent back = new Intent(this, GeofenceActivity.class);
         startActivity(back);
@@ -171,7 +176,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    @OnClick(R.id.SaveGeofenceBtn)
+    @OnClick(R.id.custom_toolbar_options)
     public void save(){
         if(Utils.isEmpty(name_input))
         {

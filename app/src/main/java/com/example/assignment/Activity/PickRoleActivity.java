@@ -98,8 +98,8 @@ public class PickRoleActivity extends AppCompatActivity {
     @OnClick(R.id.KidsButton)
     public void kid()
     {
-        Intent a = new Intent(PickRoleActivity.this, AutoStartBroadcastReceiver.class);
-        startService(a);
+        /*Intent a = new Intent(PickRoleActivity.this, AutoStartBroadcastReceiver.class);
+        startService(a);*/
         key = "child";
         progressbar.setVisibility(View.VISIBLE);
         //updateUserInfo(firebaseAuth.getCurrentUser(), "child", key);

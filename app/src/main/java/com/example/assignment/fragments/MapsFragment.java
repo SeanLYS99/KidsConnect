@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.ActionMenuView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -78,11 +79,14 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static android.content.ContentValues.TAG;
 
 public class MapsFragment extends Fragment {
 
+    @BindView(R.id.map_pb)
+    ConstraintLayout pb;
     @BindView(R.id.menu) ActionMenuView menu;
     private HashMap<String, Marker> mMarkers = new HashMap<>();
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -138,6 +142,9 @@ public class MapsFragment extends Fragment {
 
         geofencingClient = LocationServices.getGeofencingClient(getContext());
         geofenceHelper = new GeofenceHelper(getContext());
+        View root = inflater.inflate(R.layout.fragment_maps, container, false);
+        ButterKnife.bind(this, root);
+        pb.setVisibility(View.VISIBLE);
         // create ContextThemeWrapper from the original Activity Context with the custom theme
         /*final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.AppTheme);
 
@@ -148,7 +155,7 @@ public class MapsFragment extends Fragment {
         item_list.add("Sean");
         item_list.add("f");
 
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        return root;
     }
 
     @Override
@@ -285,9 +292,10 @@ public class MapsFragment extends Fragment {
                 builder.include(marker.getPosition());
             }
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 300));
+            pb.setVisibility(View.GONE);
         } catch (Exception e) {
-            Log.d(TAG, "setMarker: false");
-            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "setMarker error: "+e.getMessage());
+            //Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 

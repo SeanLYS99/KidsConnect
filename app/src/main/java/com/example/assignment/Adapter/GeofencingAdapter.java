@@ -12,14 +12,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.AddGeofenceActivity;
+import com.example.assignment.Activity.GeofenceActivity;
 import com.example.assignment.Model.geofencingModel;
 import com.example.assignment.Model.notificationModel;
 import com.example.assignment.R;
+import com.example.assignment.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -30,7 +33,6 @@ import java.util.List;
 
 public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel, GeofencingAdapter.geofencingHolder> {
 
-    private List<geofencingModel> geofenceList = new ArrayList<>();
     private Context context;
     private int status;
 
@@ -55,24 +57,31 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
                 //((Activity) context).finish();
             }
         });
-        holder.btn.setOnClickListener(v -> {
+        /*holder.arrow_right_btn.setOnClickListener(v -> {
             if(status == 0){
                 Toast.makeText(context, "Geofence deleted...", Toast.LENGTH_SHORT).show();
+            }
+        });*/
+        holder.delete_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.WarningSweetDialog(context, "Are you sure?", "This action cannot be undone. Are you sure to remove this geofence?", "Confirm", GeofenceActivity.pb, "Geofence has been removed.", model.getName());
             }
         });
     }
 
 
     class geofencingHolder extends RecyclerView.ViewHolder{
-        ConstraintLayout card;
+        CardView card;
         TextView name;
-        ImageView btn;
+        ImageView delete_btn;
 
         public geofencingHolder(@NonNull View view){
             super(view);
             card = view.findViewById(R.id.geofence_card);
             name = view.findViewById(R.id.geofence_name);
-            btn = view.findViewById(R.id.geofence_nextbtn);
+            delete_btn = view.findViewById(R.id.geofence_deletebtn);
+            //delete_btn = view.findViewById(R.id.geofence_deletebtn);
         }
     }
     @NonNull

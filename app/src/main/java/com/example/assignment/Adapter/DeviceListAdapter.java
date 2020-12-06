@@ -16,6 +16,7 @@ import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.LoginActivity;
 import com.example.assignment.Model.deviceModel;
 import com.example.assignment.R;
+import com.example.assignment.Utils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 
@@ -26,7 +27,6 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, DeviceListAdapter.myDeviceListHolder> {
 
-    private List<deviceModel> deviceList = new ArrayList<>();
     private Context context;
 
     public DeviceListAdapter(@NonNull FirebaseRecyclerOptions<deviceModel> options, Context context) {
@@ -35,13 +35,11 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
     }
 
     class myDeviceListHolder extends RecyclerView.ViewHolder{
-        private View view;
         TextView name;
         TextView remove;
 
         public myDeviceListHolder(@NonNull View itemView) {
             super(itemView);
-            view = itemView;
             name = itemView.findViewById(R.id.childDeviceText);
             remove = itemView.findViewById(R.id.removebtn);
         }
@@ -62,6 +60,7 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
         viewHolder.remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Utils.WarningSweetDialog(context, "Are you sure?", "This action cannot be undone. All the data about this device will be cleared. Are you sure to disconnect the device?", "Confirm", DeviceListActivity.pb, );
                 try {
                     SweetAlertDialog dialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
                     dialog.setTitleText("Are you sure?");
@@ -84,8 +83,6 @@ public class DeviceListAdapter extends FirebaseRecyclerAdapter<deviceModel, Devi
                         }
                     });
                     dialog.show();
-                    dialog.findViewById(R.id.confirm_button).setBackgroundColor(ContextCompat.getColor(context, R.color.success_stroke_color));
-                    dialog.findViewById(R.id.cancel_button).setBackgroundColor(ContextCompat.getColor(context, R.color.red_btn_bg_color));
                 }
                 catch (Exception e){
                     Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();

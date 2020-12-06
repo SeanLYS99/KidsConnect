@@ -60,7 +60,6 @@ public class DeviceListActivity extends AppCompatActivity {
     @BindView(R.id.custom_toolbar_title) TextView title;
     @BindView(R.id.deviceListRecyclerView)
     EmptyRecyclerView list;
-    TextView toolbar_title;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +72,7 @@ public class DeviceListActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         //toolbar_title = toolbar.findViewById(R.id.custom_toolbar_holder).findViewById(R.id.custom_toolbar_title);
-        toolbar_title = title;
-        toolbar_title.setText("Registered Devices");
+        title.setText("Registered Devices");
         list.setLayoutManager(new LinearLayoutManager(this));
         setupDevice();
     }

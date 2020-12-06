@@ -62,33 +62,41 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/devicelist_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:backgroundTint="@color/mainColor"
-            app:fabSize="normal"
-            app:icon="@drawable/plus"
-            app:iconTint="@android:color/white"
-            android:textStyle="bold"
-            android:fontFamily="@font/robotolight"
-            app:iconSize="16dp"
-            android:text="Connect A New Device"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/devicelist_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/mainColor"
+        app:fabSize="normal"
+        app:icon="@drawable/plus"
+        app:iconTint="@android:color/white"
+        android:textStyle="bold"
+        android:fontFamily="@font/robotolight"
+        app:iconSize="16dp"
+        android:text="Connect A New Device"
+        android:textColor="@android:color/white"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!--<View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#80fafafa"/>-->
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+
+    <include android:id="@+id/progressbar_device"
+        layout="@layout/progressbar"/>
+
+    <include android:id="@+id/device_list_toolbar"
+        layout="@layout/custom_toolbar"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--<androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/progressbar_device"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -111,9 +119,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <include android:id="@+id/device_list_toolbar"
-    layout="@layout/custom_toolbar"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>-->

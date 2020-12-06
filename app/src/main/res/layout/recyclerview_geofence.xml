@@ -4,62 +4,74 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/geofence_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="3dp"
+        app:cardCornerRadius="0dp"
+        app:contentPadding="20dp"
+        app:cardElevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/geofence_logo"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/thin_outlined_marker"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/geofence_name"
-            android:layout_width="0dp"
-            android:layout_height="25dp"
-            android:text="Home"
-            android:paddingLeft="30dp"
-            android:textColor="@android:color/black"
-            android:fontFamily="@font/robotolight"
-            android:textSize="18sp"
-            app:layout_constraintStart_toEndOf="@+id/geofence_logo"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/geofence_nextbtn"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            <ImageView
+                android:id="@+id/geofence_logo"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center|left"
+                android:src="@drawable/thin_outlined_marker"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/geofence_nextbtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/thin_outlined_right_arrow"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            <TextView
+                android:id="@+id/geofence_name"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:ellipsize="end"
+                android:fontFamily="@font/robotolight"
+                android:maxLines="1"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="Home"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/geofence_deletebtn"
+                app:layout_constraintStart_toEndOf="@+id/geofence_logo"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/geofence_deletebtn"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/thin_outlined_delete"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            <ImageView
+                android:id="@+id/geofence_deletebtn"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="end|center"
+                android:src="@drawable/ic_baseline_delete_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorSeparator"
-        app:layout_constraintTop_toBottomOf="@id/geofence_card"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--<ImageView
+        android:id="@+id/geofence_deletebtn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/thin_outlined_delete"
+        android:visibility="gone"
+        android:layout_margin="20dp"
+        app:layout_constraintStart_toEndOf="@id/geofence_card"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>-->

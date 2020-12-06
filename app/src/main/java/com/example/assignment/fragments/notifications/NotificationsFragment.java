@@ -2,6 +2,7 @@ package com.example.assignment.fragments.notifications;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -105,6 +106,10 @@ public class NotificationsFragment extends Fragment {
         refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                if (Build.VERSION.SDK_INT >= 26) {
+                    transaction.setReorderingAllowed(false);
+                }
                 getFragmentManager().beginTransaction().detach(NotificationsFragment.this).attach(NotificationsFragment.this).commit(); // recreate fragment
                 refresh.setRefreshing(false);
             }

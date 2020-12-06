@@ -44,7 +44,6 @@ import java.util.Locale;
 
 public class NotificationAdapter extends FirestoreRecyclerAdapter<notificationModel, NotificationAdapter.noticeHolder> {
     private static final String TAG = "NotificationAdapter";
-    private List<notificationModel> noticeList = new ArrayList<>();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private Context context;
@@ -57,7 +56,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<notificationMo
 
 
     class noticeHolder extends RecyclerView.ViewHolder{
-        private View view;
         TextView title;
         TextView content;
         TextView date;
@@ -67,7 +65,6 @@ public class NotificationAdapter extends FirestoreRecyclerAdapter<notificationMo
 
         public noticeHolder(@NonNull View itemView) {
             super(itemView);
-            view = itemView;
             title = itemView.findViewById(R.id.noti_title);
             content = itemView.findViewById(R.id.noti_content);
             date = itemView.findViewById(R.id.noti_time);

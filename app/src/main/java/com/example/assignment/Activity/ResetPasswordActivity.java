@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.assignment.R;
@@ -26,9 +27,11 @@ import butterknife.OnClick;
 public class ResetPasswordActivity extends AppCompatActivity {
 
     @BindView(R.id.editPasswordEmailText) EditText emailText;
+    @BindView(R.id.progress_bar) ConstraintLayout progressbar;
+    @BindView(R.id.custom_toolbar_title)
+    TextView title;
+
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    @BindView(R.id.progress_bar)
-    ConstraintLayout progressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reset_password);
 
         ButterKnife.bind(this);
+        title.setText("Account Settings");
     }
 
     @Override
@@ -45,7 +49,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         finish();
     }
 
-    @OnClick(R.id.backButton)
+    @OnClick(R.id.custom_toolbar_back)
     public void back(){
         Intent intent = new Intent(ResetPasswordActivity.this, EditProfileActivity.class);
         startActivity(intent);

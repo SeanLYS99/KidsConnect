@@ -25,13 +25,24 @@
 
         <TextView
             android:id="@+id/custom_toolbar_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="30dp"
             android:layout_margin="15dp"
-            android:gravity="center"
+            android:layout_weight="1"
+            android:gravity="left|center"
             android:text="Title"
             android:textColor="@android:color/black"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/custom_toolbar_options"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Edit"
+            android:visibility="gone"
+            android:textColor="@color/mainColor"
+            android:gravity="right|center"
+            android:layout_margin="15dp"/>
 
     </LinearLayout>
 

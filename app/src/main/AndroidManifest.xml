@@ -48,7 +48,8 @@
         <activity
             android:name=".Activity.GeofenceActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/devicelist" />
+            android:theme="@style/devicelist"
+             />
         <activity
             android:name=".Activity.ResetPasswordActivity"
             android:screenOrientation="portrait"

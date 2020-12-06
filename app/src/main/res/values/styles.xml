@@ -30,6 +30,11 @@
 
     </style>
 
+    <style name="noColorPrimary" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="fontFamily">@font/robotoregular</item>
+    </style>
+
     <style name="devicelist" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/mainColor</item>
         <item name="colorAccent">@color/mainColor</item>

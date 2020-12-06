@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,8 @@ public class EditProfileActivity extends AppCompatActivity {
     @BindView(R.id.EditEmailText) TextView email;
     @BindView(R.id.EditPhoneText) TextView phone;
     @BindView(R.id.pb_editprofile) ConstraintLayout progressbar;
+    @BindView(R.id.custom_toolbar_title) TextView title;
+    @BindView(R.id.scrollView) ScrollView scrollView;
 
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -57,6 +60,7 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         ButterKnife.bind(this);
+        title.setText("Account Settings");
         loadData();
     }
 
@@ -79,12 +83,12 @@ public class EditProfileActivity extends AppCompatActivity {
         phone.requestFocus();
     }
 
-    @OnClick(R.id.backButton)
+    @OnClick(R.id.custom_toolbar_back)
     public void back(){
-        /*Intent intent = new Intent(EditProfileActivity.this, ParentActivity.class);
-        startActivity(intent);
-        finish();*/
         super.onBackPressed();
+        /*Intent back = new Intent(DeviceListActivity.this, ParentActivity.class);
+        startActivity(back);
+        finish();*/
     }
 
     @OnClick(R.id.SaveChangesButton)
