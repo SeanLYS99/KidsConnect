@@ -30,6 +30,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.assignment.Constants;
+import com.example.assignment.MySingleton;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.google.android.gms.common.api.Status;
@@ -61,12 +67,18 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,9 +104,13 @@ public class AddGeofenceActivity extends AppCompatActivity {
     String from_where;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 102;
 
+    // List
+    List<String> child_token_list = new ArrayList<>();
+
     // Firebase
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
 
     // to differentiate save button function
     private String id = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document().getId();
@@ -191,6 +207,28 @@ public class AddGeofenceActivity extends AppCompatActivity {
             return;
         }
 
+        readToken(new FirebaseCallBack() {
+            @Override
+            public void onCallBack(List<String> token_list) {
+                if(token_list != null){
+                    for(int i=0; i<token_list.size(); i++){
+                        JSONObject notification = new JSONObject();
+                        JSONObject notificationBody = new JSONObject();
+                        try {
+                            notificationBody.put("title", "Background Service");
+                            notificationBody.put("message", "Geofence");
+
+                            notification.put("to", token_list.get(i));
+                            notification.put("data", notificationBody);
+                        }
+                        catch (JSONException e) {
+                            Log.d(TAG, "onCallBack: "+e.getMessage());
+                        }
+                        sendBackgroundNotification(notification);
+                    }
+                }
+            }
+        });
         updateFirestore(id, name_input.getText().toString(), input.getText().toString(), RADIUS, map_location);
     }
 
@@ -416,4 +454,73 @@ public class AddGeofenceActivity extends AppCompatActivity {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
         return resizedBitmap;
     }
+
+    private void readToken(FirebaseCallBack firebaseCallBack){
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Log.d(TAG, "onDataChange: "+snapshot);
+                    child_token_list.add(snapshot.child("token").getValue().toString());
+                    firebaseCallBack.onCallBack(child_token_list);
+                    Log.d(TAG, "onDataChange: "+child_token_list);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private interface FirebaseCallBack{
+        void onCallBack(List<String> token_list);
+    }
+
+    private void sendBackgroundNotification(JSONObject notification){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification,
+                response -> {
+                    Log.d(TAG, "sendNotification response: "+response.toString());
+                },
+                error -> {
+                    Log.d(TAG, "onErrorResponse: "+error.getMessage());
+                }){
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", Constants.serverKey);
+                params.put("Content-Type", Constants.contentType);
+                return params;
+            }
+        };
+        MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+
+//        doc.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                DocumentSnapshot document = task.getResult();
+//                if (document.get("parentToken") != null) {
+//                    JSONObject notification = new JSONObject();
+//                    JSONObject notificationBody = new JSONObject();
+//                    try {
+//                        notificationBody.put("title", "SOS!");
+//                        notificationBody.put("message", child_name + " is in danger!");
+//
+//                        notification.put("to", document.getString("parentToken"));
+//                        notification.put("data", notificationBody);
+//                    }
+//                    catch (JSONException e) {
+//                        Log.e(TAG, "onCreate: " + e.getMessage() );
+//                    }
+//                    sendNotification(notification);
+//                }
+//                else {
+//                    Toast.makeText(ChildActivity.this, "You haven't connect to your parent yet.", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 }

@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.assignment.Activity.AddGeofenceActivity;
 import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.LoginActivity;
@@ -25,10 +26,14 @@ import com.example.assignment.Activity.SignUpActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -205,6 +210,42 @@ public class Utils {
         }
         return null;
     }
+
+    public static void StructureJSON(String title, String message, String token, Context context){
+        JSONObject notification = new JSONObject();
+        JSONObject notificationBody = new JSONObject();
+        try {
+            notificationBody.put("title", title);
+            notificationBody.put("message", message);
+
+            notification.put("to", token);
+            notification.put("data", notificationBody);
+        }
+        catch (JSONException e) {
+            Log.d("StructureJSON", "Error: "+e.getMessage());
+        }
+        sendNotification(notification, context);
+    }
+
+    public static void sendNotification(JSONObject notification, Context context){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification,
+                response -> {
+                    Log.d("Utils.SendNotification", "sendNotification response: "+response.toString());
+                },
+                error -> {
+                    Log.d("Utils.SendNotification", "onErrorResponse: "+error.getMessage());
+                }){
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", Constants.serverKey);
+                params.put("Content-Type", Constants.contentType);
+                return params;
+            }
+        };
+        MySingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
 
     /*public static void showView(List<View> views){
         for (View view : views){

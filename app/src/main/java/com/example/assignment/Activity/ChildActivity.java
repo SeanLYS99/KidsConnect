@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -33,13 +34,17 @@ import com.example.assignment.R;
 import com.example.assignment.Service.TrackerService;
 import com.example.assignment.Utils;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -103,17 +108,22 @@ public class ChildActivity extends AppCompatActivity {
         /*LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("child_account"));*/
 
-        m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
         //child_name = getIntent().getStringExtra("child_name");
         child_name = sp.getString("name", null);
         cname.setText(child_name);
+
+        // add child's token to firebase realtime database
+        m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
+        saveToken();
 
         // Check GPS is enabled
         try {
             LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
             if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Intent gps = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(gps);
                 Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show();
-                finish();
+                //finish();
             }
 
             // Check location permission is granted - if it is, start
@@ -320,6 +330,14 @@ public class ChildActivity extends AppCompatActivity {
 
                     }
                 });
+
+    }
+
+    private void saveToken(){
+        Map<String, Object> token_map = new HashMap<>();
+        token_map.put("token", m_FCMtoken);
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/"+child_name);
+        ref.updateChildren(token_map);
 
     }
 }

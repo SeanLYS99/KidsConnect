@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.assignment.Activity.AddGeofenceActivity;
+import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.GeofenceActivity;
 import com.example.assignment.Model.geofencingModel;
 import com.example.assignment.Model.notificationModel;
@@ -25,16 +26,28 @@ import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel, GeofencingAdapter.geofencingHolder> {
 
     private Context context;
     private int status;
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public GeofencingAdapter(@NonNull FirestoreRecyclerOptions<geofencingModel> options, Context context, int status) {
         super(options);
@@ -65,7 +78,37 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
         holder.delete_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.WarningSweetDialog(context, "Are you sure?", "This action cannot be undone. Are you sure to remove this geofence?", "Confirm", GeofenceActivity.pb, "Geofence has been removed.", model.getName());
+                //Utils.WarningSweetDialog(context, "Are you sure?", "This action cannot be undone. Are you sure to remove this geofence?", "Confirm", GeofenceActivity.pb, "Geofence has been removed.", model.getName());
+                SweetAlertDialog dialog = new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE);
+                dialog.setTitleText("Are you sure?");
+                dialog.setContentText("This action cannot be undone. Are you sure to remove this geofence from the map?");
+                dialog.setConfirmText("Confirm");
+                dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.dismissWithAnimation();
+                        DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid());
+                        doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.getResult() != null){
+                                    String token = task.getResult().getString("parentToken");
+                                    Utils.StructureJSON("Remove Geofence", model.getId(), token, context);
+                                }
+                            }
+                        });
+
+                        //DeviceListActivity.deleteSharedPreferences();
+                    }
+
+                });
+                dialog.setCancelButton("Cancel", new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.dismissWithAnimation();
+                    }
+                });
+                dialog.show();
             }
         });
     }

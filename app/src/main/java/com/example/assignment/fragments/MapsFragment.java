@@ -224,10 +224,12 @@ public class MapsFragment extends Fragment {
         Log.d(TAG, "loginAccount: "+user.getDisplayName());
         if (user != null) {
             drawMap();
+            //setGeofence();
             retrieveData(new FirebaseCallBack() {
                 @Override
                 public void onCallback(List<String> id, List<LatLng> latlng_list, List<Integer> rad) {
-                    if (rad.size() == latlng_list.size()) {
+                    if (id.size() == rad.size() && id.size() == latlng_list.size()) {
+                        Log.d(TAG, "onCallback: latlng = "+latlng_list);
                         setGeofence();
                     }
                 }
@@ -328,7 +330,7 @@ public class MapsFragment extends Fragment {
                         // save all the documentId inside id_list
                         id_list.add(snapshot.getId());
                     }
-                    
+
                     for (count = 0; count < id_list.size(); count++) {
                         Log.e("before ref", String.valueOf(count));
                         ref.document(id_list.get(count)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -339,11 +341,12 @@ public class MapsFragment extends Fragment {
                                     if (doc.exists()) {
                                         // declare variables and store values
                                         String address = doc.getString("address");
-
+                                        Log.d(TAG, "address: "+address);
                                         // add retrieved radius into a list
                                         radius_list.add(doc.getLong("radius").intValue());
 
                                         // transfer location name into latlng
+                                        //latlng_list.add(doc.get("latitude"))
                                         latlng_list.add(Utils.convertNameToLatLng(getContext(), address, ""));
                                         /*try {
                                             Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
@@ -377,6 +380,43 @@ public class MapsFragment extends Fragment {
             }
         });
     }
+//
+//    private void setGeofence(){
+//        int permission = ContextCompat.checkSelfPermission(getContext(),
+//                Manifest.permission.ACCESS_FINE_LOCATION);
+//        if (permission == PackageManager.PERMISSION_GRANTED) {
+//            // If permission is granted
+//            // read the list size and send every items inside different list to GeofenceHelper
+//            for(count = 0; count < latlng_list.size(); count++) {
+//                // Set geofence's rule. example: lat,lng,radius,initial trigger ...
+//                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+//                GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
+//                PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+//
+//                // save loop variable into a temp variable, so it won't become 3 in onSuccess method.
+//                final int temp = count;
+//                // add geofences following the rule
+//                geofencingClient.addGeofences(request, pendingIntent)
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                // Because geofence doesn't come with an indicator, so add a circle to the map for better user experience
+//                                addCircle(latlng_list.get(temp), radius_list.get(temp));
+//                                Log.d(TAG, "onSuccess: Geofence Added....");
+//                            }
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            String errorMsg = geofenceHelper.getErrorString(e);
+//                            Log.d(TAG, "onFailure: " + errorMsg);
+//                        });
+//            }
+//        }
+//    }
+//
+    // A way to deal with firebase asynchronous API
+    private interface FirebaseCallBack{
+        void onCallback(List<String> id, List<LatLng> latLngList, List<Integer> radius);
+    }
 
     private void setGeofence(){
         int permission = ContextCompat.checkSelfPermission(getContext(),
@@ -385,37 +425,17 @@ public class MapsFragment extends Fragment {
             // If permission is granted
             // read the list size and send every items inside different list to GeofenceHelper
             for(count = 0; count < latlng_list.size(); count++) {
-                // Set geofence's rule. example: lat,lng,radius,initial trigger ...
-                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
-                GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
-                PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
-
                 // save loop variable into a temp variable, so it won't become 3 in onSuccess method.
-                final int temp = count;
+                //final int temp = count;
                 // add geofences following the rule
-                geofencingClient.addGeofences(request, pendingIntent)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                // Because geofence doesn't come with an indicator, so add a circle to the map for better user experience
-                                addCircle(latlng_list.get(temp), radius_list.get(temp));
-                                Log.d(TAG, "onSuccess: Geofence Added....");
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            String errorMsg = geofenceHelper.getErrorString(e);
-                            Log.d(TAG, "onFailure: " + errorMsg);
-                        });
+                Log.d(TAG, "latlng_list: "+latlng_list.get(count) + ", radius_list: "+radius_list.get(count));
+                addCircle(latlng_list.get(count), radius_list.get(count));
+
             }
         }
     }
 
-    // A way to deal with firebase asynchronous API
-    private interface FirebaseCallBack{
-        void onCallback(List<String> id, List<LatLng> latLngList, List<Integer> radius);
-    }
-
-    @Override
+    /*@Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         //
@@ -426,5 +446,5 @@ public class MapsFragment extends Fragment {
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-    }
+    }*/
 }
