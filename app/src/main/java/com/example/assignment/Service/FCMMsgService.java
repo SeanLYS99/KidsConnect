@@ -12,11 +12,13 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.assignment.Activity.ChildActivity;
+import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -26,6 +28,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Random;
 
+import static android.content.ContentValues.TAG;
+
 public class FCMMsgService extends FirebaseMessagingService {
     private final String ADMIN_CHANNEL_ID ="admin_channel";
     ChildActivity child_act;
@@ -34,7 +38,11 @@ public class FCMMsgService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        final Intent intent = new Intent(this, ChildActivity.class);
+        Log.d(TAG, "onMessageReceived: "+remoteMessage.getData());
+        final Intent intent = new Intent(this, ParentActivity.class);
+        //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+        startService(new Intent(this, TrackerService.class));
+        Log.d("FCMMsgService", "onMessageReceived: yes");
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
 
@@ -59,8 +67,9 @@ public class FCMMsgService extends FirebaseMessagingService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setLargeIcon(largeIcon)
-                .setContentTitle("SOS!")
-                .setContentText(child_act.child_name + " is in danger!")
+                .setContentTitle(remoteMessage.getData().get("title"))
+                //.setContentText(child_act.child_name + " is in danger!")
+                .setContentText(remoteMessage.getData().get("message"))
                 .setAutoCancel(true)
                 .setSound(notificationSoundUri)
                 .setContentIntent(pendingIntent);

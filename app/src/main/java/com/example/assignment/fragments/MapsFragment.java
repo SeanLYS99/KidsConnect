@@ -99,7 +99,7 @@ public class MapsFragment extends Fragment {
     private static final String TAG = "MapsFragment";
     private int count;
     private double lat, lng;
-    private List<String> item_list = new ArrayList<>();
+    //private List<String> item_list = new ArrayList<>();
 
     // Declare list -- need to pass to GeofenceHelper
     List<String> id_list = new ArrayList<>();
@@ -152,8 +152,8 @@ public class MapsFragment extends Fragment {
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);*/
 
         //MenuBuilder menuBuilder = (MenuBuilder) menu.getMenu();
-        item_list.add("Sean");
-        item_list.add("f");
+        //item_list.add("Sean");
+        //item_list.add("f");
 
         return root;
     }
@@ -221,6 +221,7 @@ public class MapsFragment extends Fragment {
 
     private void loginAccount(){
         FirebaseUser user = firebaseAuth.getCurrentUser();
+        Log.d(TAG, "loginAccount: "+user.getDisplayName());
         if (user != null) {
             drawMap();
             retrieveData(new FirebaseCallBack() {

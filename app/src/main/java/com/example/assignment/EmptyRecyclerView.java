@@ -13,6 +13,21 @@ public class EmptyRecyclerView extends RecyclerView {
 
     private AdapterDataObserver observer = new AdapterDataObserver() {
         @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+            checkIfEmpty();
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            checkIfEmpty();
+        }
+
+        @Override
         public void onChanged() {
             checkIfEmpty();
         }
@@ -59,6 +74,7 @@ public class EmptyRecyclerView extends RecyclerView {
 
     public void setEmptyView(View emptyView) {
         this.emptyView = emptyView;
+        Log.d("TAG", "setEmptyView: "+emptyView.getId());
         checkIfEmpty();
     }
 

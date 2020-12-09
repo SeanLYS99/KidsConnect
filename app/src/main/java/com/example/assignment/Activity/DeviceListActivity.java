@@ -34,6 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -74,6 +75,7 @@ public class DeviceListActivity extends AppCompatActivity {
         //toolbar_title = toolbar.findViewById(R.id.custom_toolbar_holder).findViewById(R.id.custom_toolbar_title);
         title.setText("Registered Devices");
         list.setLayoutManager(new LinearLayoutManager(this));
+
         setupDevice();
     }
 
@@ -143,13 +145,13 @@ public class DeviceListActivity extends AppCompatActivity {
         finish();*/
     }
 
-    @OnClick(R.id.devicelist_fab)
+    /*@OnClick(R.id.devicelist_fab)
     public void add_Device(){
         Intent add = new Intent(this, ChildDetailsActivity.class);
         add.putExtra("fromDeviceList","yes");
         startActivity(add);
         //finish();
-    }
+    }*/
 
     private void setupDevice(){
         pb.setVisibility(View.VISIBLE);
@@ -158,6 +160,18 @@ public class DeviceListActivity extends AppCompatActivity {
         FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
                 .setQuery(query, deviceModel.class)
                 .build();
+
+        DocumentReference ab = db.collection("UserInfo").document();
+
+        ab.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot a = task.getResult();
+                    Log.d("TAG", "onComplete: "+a);
+                }
+            }
+        });
         adapter = new DeviceListAdapter(options, DeviceListActivity.this);
         list.setEmptyView(empty_icon);
         list.setAdapter(adapter);

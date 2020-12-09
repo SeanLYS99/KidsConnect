@@ -44,7 +44,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         int transition_type = geofencingEvent.getGeofenceTransition();
 
         switch (transition_type){
-            case Geofence.GEOFENCE_TRANSITION_ENTER:
+            case Geofence.GEOFENCE_TRANSITION_ENTER: // send noti to fcm
                 notificationHelper.sendHighPriorityNotification("Geofence ENTERED", "your kid has entered home", ParentActivity.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:

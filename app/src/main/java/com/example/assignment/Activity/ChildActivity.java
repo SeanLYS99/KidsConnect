@@ -27,6 +27,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.assignment.Constants;
 import com.example.assignment.MySingleton;
 import com.example.assignment.R;
 import com.example.assignment.Service.TrackerService;
@@ -67,9 +68,9 @@ public class ChildActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST = 1;
     private String m_FCMtoken;
-    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
-    final private String serverKey = "key=" + "AAAAuehGYVg:APA91bGBm1WrCq8KYOp5wTZcFs5uz_BagLrHsLt9hBqBuVBdz2HhF7J-RlGJLeZPPuwJrraGO47I8ZcIGfRkNR3thu6HSc7_f6yAynVhV7JIVrURxiuykQNfqcXNPIwzxkkGgp2XGIZQ";
-    final private String contentType = "application/json";
+//    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
+//    final private String serverKey = "key=" + "AAAAuehGYVg:APA91bGBm1WrCq8KYOp5wTZcFs5uz_BagLrHsLt9hBqBuVBdz2HhF7J-RlGJLeZPPuwJrraGO47I8ZcIGfRkNR3thu6HSc7_f6yAynVhV7JIVrURxiuykQNfqcXNPIwzxkkGgp2XGIZQ";
+//    final private String contentType = "application/json";
     final String TAG = "NOTIFICATION TAG";
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -258,7 +259,7 @@ public class ChildActivity extends AppCompatActivity {
     }
 
     private void sendNotification(JSONObject notification){
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(FCM_API, notification,
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification,
                 response -> {
                     Toast.makeText(ChildActivity.this, "Sent", Toast.LENGTH_LONG).show();
                     Log.e("hih", "onResponse: " + response.toString());
@@ -273,16 +274,14 @@ public class ChildActivity extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("Authorization", serverKey);
-                params.put("Content-Type", contentType);
+                params.put("Authorization", Constants.serverKey);
+                params.put("Content-Type", Constants.contentType);
                 Log.e("params", params.toString());
                 return params;
             }
         };
         updateFirestore();
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
-
-
     }
 
     private void updateFirestore(){

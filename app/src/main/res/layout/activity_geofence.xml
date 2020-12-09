@@ -10,8 +10,12 @@
         layout="@layout/recyclerview_geofence"
         android:visibility="gone"/>
 
-    <include android:id="@+id/geofence_toolbar"
-        layout="@layout/custom_toolbar"/>
+    <include
+        android:id="@+id/geofence_toolbar"
+        layout="@layout/custom_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/geofence_content_holder"

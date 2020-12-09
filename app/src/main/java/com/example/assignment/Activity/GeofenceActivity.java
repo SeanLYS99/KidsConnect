@@ -126,6 +126,7 @@ public class GeofenceActivity extends AppCompatActivity {
                     .setQuery(query, geofencingModel.class)
                     .build();
 
+
             adapter = new GeofencingAdapter(options, GeofenceActivity.this, GEOFENCE_STATUS);
             list.setEmptyView(emptyView);
             list.setAdapter(adapter);

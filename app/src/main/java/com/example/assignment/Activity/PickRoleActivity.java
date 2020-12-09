@@ -52,12 +52,13 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class PickRoleActivity extends AppCompatActivity {
 
+    private static final String TAG = "PickRoleActivity";
     @BindView(R.id.ParentsButton) CardView parents;
     @BindView(R.id.KidsButton) CardView kids;
     @BindView(R.id.PickRoleBackButton) ImageButton backbtn;
     @BindView(R.id.progress_bar)
     ConstraintLayout progressbar;
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore store = FirebaseFirestore.getInstance();
     private FirebaseDatabase db = FirebaseDatabase.getInstance();
     SharedPreferences sp;
@@ -77,7 +78,6 @@ public class PickRoleActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         ButterKnife.bind(this);
-        firebaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -187,10 +187,13 @@ public class PickRoleActivity extends AppCompatActivity {
 
     // Child
     private void checkChildInfo(PickRoleActivity activity){
+        Log.d(TAG, "checkChildInfo: b4 shared preferences");
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("userType", "child");
         editor.apply();
+        Log.d(TAG, "checkChildInfo: after sp");
         String uid = firebaseAuth.getUid();
+        Log.d(TAG, "checkChildInfo: UID-");
 
         DatabaseReference ref = db.getReference(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -198,6 +201,7 @@ public class PickRoleActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) // check if this uid has any registered child
                 {
+                    progressbar.setVisibility(View.GONE);
                     Intent kid = new Intent(activity, ChildAccountActivity.class);
                     startActivity(kid);
                     finish();
@@ -211,7 +215,8 @@ public class PickRoleActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                progressbar.setVisibility(View.GONE);
+                Log.d(TAG, "onCancelled: "+databaseError.getMessage());
             }
         });
 
