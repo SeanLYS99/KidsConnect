@@ -75,7 +75,7 @@
         <activity
             android:name=".Activity.ChildActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/ChildActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -95,7 +95,8 @@
         <activity
             android:name=".Activity.CodeActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/CodeActivity">
+        </activity>
         <activity
             android:name=".Activity.MainActivity"
             android:screenOrientation="portrait"

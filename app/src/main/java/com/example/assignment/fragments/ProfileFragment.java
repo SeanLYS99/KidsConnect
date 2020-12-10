@@ -140,7 +140,7 @@ public class ProfileFragment extends Fragment {
             progressbar.setVisibility(View.VISIBLE);
             //updateUserInfo(firebaseAuth.getCurrentUser(), "");
             SharedPreferences.Editor editor = sp.edit();
-            editor.putString("userType", "a");
+            editor.putString("userType", "-");
             editor.apply();
 
             FirebaseAuth.getInstance().signOut();

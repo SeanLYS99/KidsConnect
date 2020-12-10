@@ -2,10 +2,12 @@ package com.example.assignment.fragments.dashboard;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +17,20 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.assignment.Activity.GeofenceActivity;
 import com.example.assignment.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class FeaturesFragment extends Fragment {
 
+    FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     /*private FeaturesViewModel dashboardViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -48,9 +58,29 @@ public class FeaturesFragment extends Fragment {
     }
 
     @OnClick(R.id.Geofence_CardView)
-    public void open_geofence(){
+    public void open_geofence() {
         Intent geofence = new Intent(getActivity(), GeofenceActivity.class);
         startActivity(geofence);
         //getActivity().finish();
+    }
+
+    @OnClick(R.id.Tracking_CardView)
+    public void startTracking() {
+        Toast.makeText(getContext(), "hi", Toast.LENGTH_SHORT).show();
+//        String token;
+//        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
+//        ref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    String token = snapshot.child("token").getValue().toString();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 }

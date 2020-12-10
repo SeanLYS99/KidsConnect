@@ -4,28 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#fff"
     tools:context=".Activity.ChildActivity">
 
-    <Button
-        android:id="@+id/CName"
+    <include
+        android:id="@+id/child_actionbar"
+        layout="@layout/custom_actionbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/greetings_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="hi"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:text="Hello, Amanda"
+        android:textSize="28sp"
+        android:textColor="@android:color/black"
+        android:layout_margin="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/child_actionbar" />
+
 
     <Button
         android:id="@+id/SOS_btn"
-        android:layout_width="170dp"
-        android:layout_height="170dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:background="@drawable/sos_button"
         android:elevation="8dp"
         android:text="SOS"
+        android:fontFamily="@font/robotolight"
         android:textColor="@android:color/white"
-        android:textSize="22sp"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="After pressing the SOS button, an emergency notification will be sent to your parent along with your current location."
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="#E10600"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SOS_btn" />
+
 
 
 

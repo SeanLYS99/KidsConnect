@@ -30,9 +30,9 @@
 
     </style>
 
-    <style name="noColorPrimary" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="CodeActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="fontFamily">@font/robotoregular</item>
+        <item name="fontFamily">@font/robotomedium</item>
     </style>
 
     <style name="devicelist" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -43,8 +43,10 @@
         <item name="android:fontFamily">@font/robotoregular</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="ChildActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:fontFamily">@font/robotomedium</item>
+        <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
+        <item name="colorPrimaryDark">@android:color/black</item>
 
     </style>
 

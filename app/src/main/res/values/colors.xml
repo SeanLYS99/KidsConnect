@@ -12,8 +12,9 @@
     <color name="colorPrimaryLight">@color/mainColor</color>
     <color name="colorError">#FF0000</color>
     <color name="colorControlNormal">#a4a3a1</color>
-    <color name="colorButtonNormal">#ffffff</color>
+    <color name="white">#ffffff</color>
     <color name="startColor">#f5635b</color>
     <color name="endColor">#ffa121</color>
     <color name="reddish_grey">#D8CACA</color>
+    <color name="red">#E10600</color>
 </resources>

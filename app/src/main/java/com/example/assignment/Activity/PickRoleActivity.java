@@ -37,6 +37,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -61,7 +63,7 @@ public class PickRoleActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore store = FirebaseFirestore.getInstance();
     private FirebaseDatabase db = FirebaseDatabase.getInstance();
-    SharedPreferences sp;
+    //SharedPreferences sp;
     private String m_FCMtoken;
     private String key;
 
@@ -72,7 +74,7 @@ public class PickRoleActivity extends AppCompatActivity {
 
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
 
-        sp = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
+        //sp = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
         // Transparent Status Bar
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -126,9 +128,9 @@ public class PickRoleActivity extends AppCompatActivity {
 
     // Parents
     private void saveUserInfo(String type, String key){
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("userType", type);
-        editor.apply();
+//        SharedPreferences.Editor editor = sp.edit();
+//        editor.putString("userType", type);
+//        editor.apply();
         Log.d("TOKEN", "FCM Example Token: " + m_FCMtoken);
 
         if (key.equals("parent")) {
@@ -142,10 +144,27 @@ public class PickRoleActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                progressbar.setVisibility(View.INVISIBLE);
-                                Intent parent = new Intent(PickRoleActivity.this, ParentActivity.class);
-                                startActivity(parent);
-                                finish();
+                                DocumentReference ref = store.collection("UserInfo").document(firebaseAuth.getUid());
+                                ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()) {
+                                            DocumentSnapshot snapshot = task.getResult();
+                                            if(snapshot.getString("pin") != null) { // this user already has a pin
+                                                progressbar.setVisibility(View.INVISIBLE);
+                                                Intent parent = new Intent(PickRoleActivity.this, ParentActivity.class);
+                                                startActivity(parent);
+                                                finish();
+                                            }
+                                            else { // don't have a pin
+                                                Intent pin = new Intent(PickRoleActivity.this, CodeActivity.class);
+                                                pin.putExtra("Intent", "PickRoleActivity"); // tell CodeActivity intent from where
+                                                startActivity(pin);
+                                                finish();
+                                            }
+                                        }
+                                    }
+                                });
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -187,13 +206,7 @@ public class PickRoleActivity extends AppCompatActivity {
 
     // Child
     private void checkChildInfo(PickRoleActivity activity){
-        Log.d(TAG, "checkChildInfo: b4 shared preferences");
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("userType", "child");
-        editor.apply();
-        Log.d(TAG, "checkChildInfo: after sp");
         String uid = firebaseAuth.getUid();
-        Log.d(TAG, "checkChildInfo: UID-");
 
         DatabaseReference ref = db.getReference(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {

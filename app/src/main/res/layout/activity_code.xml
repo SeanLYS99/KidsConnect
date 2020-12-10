@@ -4,6 +4,171 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".Activity.CodeActivity">
+
+    <include
+        android:id="@+id/code_actionbar"
+        layout="@layout/custom_actionbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ENTER PIN LAYOUT -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/enterPIN_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/code_actionbar"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.wynsbin.vciv.VerificationCodeInputView
+            android:id="@+id/vciv_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="30dp"
+            android:focusedByDefault="true"
+            app:vciv_et_background="@color/quantum_grey200"
+            app:vciv_et_foucs_background="@color/quantum_grey400"
+            app:vciv_et_height="58dp"
+            app:vciv_et_spacing="8dp"
+            app:vciv_et_inputType="number"
+            app:vciv_et_number="4"
+            app:vciv_et_text_color="@android:color/black"
+            app:vciv_et_text_size="22sp"
+            app:vciv_et_underline_default_color="@color/quantum_grey400"
+            app:vciv_et_underline_focus_color="@color/quantum_grey600"
+            app:vciv_et_underline_height="8dp"
+            app:vciv_et_cursor_height="0dp"
+            app:vciv_et_cursor_width="0dp"
+            android:defaultFocusHighlightEnabled="true"
+            app:vciv_et_underline_show="true"
+            app:vciv_et_width="48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <TextView
+            android:id="@+id/invalidPIN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invalid PIN!"
+            android:visibility="invisible"
+            android:layout_marginTop="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/vciv_code"
+            android:textColor="@color/red"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- CREATE PIN LAYOUT -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/createPIN_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:padding="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/code_actionbar">
+
+        <ImageView
+            android:id="@+id/createPIN_image"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/success_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/createPIN_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Create a security PIN"
+            android:textColor="@android:color/black"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/createPIN_image" />
+
+        <TextView
+            android:id="@+id/createPIN_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="You'll need this PIN to modify parental controls rule."
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createPIN_title" />
+
+        <com.wynsbin.vciv.VerificationCodeInputView
+            android:id="@+id/createPIN_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:defaultFocusHighlightEnabled="true"
+            android:focusedByDefault="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createPIN_message"
+            app:vciv_et_background="@android:color/white"
+            app:vciv_et_cursor_height="30dp"
+            app:vciv_et_cursor_width="2dp"
+            app:vciv_et_foucs_background="@android:color/white"
+            app:vciv_et_height="58dp"
+            app:vciv_et_inputType="number"
+            app:vciv_et_number="4"
+            app:vciv_et_spacing="8dp"
+            app:vciv_et_text_color="@android:color/black"
+            app:vciv_et_text_size="22sp"
+            app:vciv_et_underline_default_color="@color/quantum_grey400"
+            app:vciv_et_underline_focus_color="@color/quantum_grey600"
+            app:vciv_et_underline_height="2dp"
+            app:vciv_et_underline_show="true"
+            app:vciv_et_width="48dp" />
+
+        <TextView
+            android:id="@+id/createPIN_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please enter a 4-digit PIN"
+            android:visibility="invisible"
+            android:layout_marginTop="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/createPIN_input"
+            android:textColor="@color/red"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/createPIN_createBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/button"
+            android:text="Create"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include android:id="@+id/progressbar_pin"
+        layout="@layout/progressbar"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

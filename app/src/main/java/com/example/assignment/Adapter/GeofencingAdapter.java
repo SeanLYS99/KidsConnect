@@ -31,6 +31,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,7 +51,8 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
     private Context context;
     private int status;
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
+    List<String> token_list = new ArrayList<>();
 
     public GeofencingAdapter(@NonNull FirestoreRecyclerOptions<geofencingModel> options, Context context, int status) {
         super(options);
@@ -87,7 +92,28 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
                     @Override
                     public void onClick(SweetAlertDialog sDialog) {
                         sDialog.dismissWithAnimation();
-                        DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid());
+                        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
+                        ref.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                                    token_list.add(snapshot.child("token").getValue().toString());
+                                    Log.d("GeofencingAdapter", "tokenlist: "+token_list);
+                                    //Utils.StructureJSON("Remove Geofence", model.getId(), token_list);
+                                }
+                                for(int i=0; i<token_list.size(); i++){
+                                    Log.d("GeofencingAdapter", "Geofence ID: "+model.getId());
+                                    Utils.StructureJSON("Remove Geofence", model.getId(), token_list.get(i), context);
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+                        /*DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid());
                         doc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -96,7 +122,7 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
                                     Utils.StructureJSON("Remove Geofence", model.getId(), token, context);
                                 }
                             }
-                        });
+                        });*/
 
                         //DeviceListActivity.deleteSharedPreferences();
                     }

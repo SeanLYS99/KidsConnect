@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.BatteryManager;
@@ -67,6 +68,7 @@ public class ParentActivity extends AppCompatActivity {
     private Fragment selectedFragment;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    SharedPreferences sp;
 
     // double tap exit
     private boolean doubleBackToExitPressedOnce;
@@ -114,6 +116,10 @@ public class ParentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_parent);
 
         ButterKnife.bind(this);
+        sp = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("userType", "parents");
+        editor.apply();
         toolbar_title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         //this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));*/
 

@@ -103,12 +103,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        /*else if (user != null && userType.contains("child") && child == true){
+        else if (user != null && userType.contains("child")){
 
             Intent intent = new Intent(MainActivity.this, ChildActivity.class);
             startActivity(intent);
             finish();
-        }*/
+        }
         else{
             Intent homeIntent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(homeIntent);

@@ -2,6 +2,7 @@ package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -13,14 +14,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,7 +79,10 @@ import butterknife.OnClick;
 
 public class ChildActivity extends AppCompatActivity {
 
-    @BindView(R.id.CName) Button cname;
+    @BindView(R.id.child_actionbar) Toolbar action_bar;
+    @BindView(R.id.three_dots_icon) ImageView three_dots_icon;
+    @BindView(R.id.toolbar_title) TextView title;
+    @BindView(R.id.greetings_msg) TextView greetings_msg;
 
     private static final int PERMISSIONS_REQUEST = 1;
     private String m_FCMtoken;
@@ -82,7 +95,12 @@ public class ChildActivity extends AppCompatActivity {
     private FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
     public static String child_name;
     private Map<String, Object> locMap = new HashMap<>();
+    SharedPreferences sp, userType;
     private static int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 101;
+
+    // double tap exit
+    private boolean doubleBackToExitPressedOnce;
+    private Handler mHandler = new Handler();
     //private Uri icon_uri;
 
     Date calendar_date = Calendar.getInstance().getTime();
@@ -92,8 +110,6 @@ public class ChildActivity extends AppCompatActivity {
     String datetime = df.format(calendar_date);
     //String time = tf.format(calendar_date);
 
-
-    SharedPreferences sp;
     //String date = new SimpleDateFormat("yyyy/MM/dd").format(GregorianCalendar.getInstance());
     //LocalDateTime now = LocalDateTime.now()
     @Override
@@ -102,15 +118,27 @@ public class ChildActivity extends AppCompatActivity {
         setContentView(R.layout.activity_child);
 
         ButterKnife.bind(this);
+        setSupportActionBar(action_bar);
+        three_dots_icon.setVisibility(View.VISIBLE);
 
+        //action_bar.inflateMenu(R.menu.child_account_menu);
+
+        //title.setTextColor(getResources().getColor(R.color.white));
+        //title.setBackgroundColor(getResources().getColor(R.color.red));
         sp = getSharedPreferences("com.example.assignment.child", Context.MODE_PRIVATE);
+        userType = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = userType.edit();
+        editor.putString("userType", "child");
+        editor.apply();
 
         /*LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("child_account"));*/
 
         //child_name = getIntent().getStringExtra("child_name");
         child_name = sp.getString("name", null);
-        cname.setText(child_name);
+        greetings_msg.setText("Hello, "+child_name);
+
+        //cname.setText(child_name);
 
         // add child's token to firebase realtime database
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
@@ -145,6 +173,28 @@ public class ChildActivity extends AppCompatActivity {
         }
     }
 
+    private final Runnable mRunnable = new Runnable() {
+        @Override
+        public void run() {
+            doubleBackToExitPressedOnce = false;
+        }
+    };
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            //exitToast.cancel();
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Press again to exit App", Toast.LENGTH_SHORT).show();
+
+        mHandler.postDelayed(mRunnable, 2000);
+    }
+
+
     public BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -152,6 +202,24 @@ public class ChildActivity extends AppCompatActivity {
             String cname = intent.getStringExtra("cname");
         }
     };
+
+    @OnClick(R.id.three_dots_icon)
+    public void click(View view){
+        PopupMenu popup = new PopupMenu(ChildActivity.this, view);
+        popup.getMenuInflater().inflate(R.menu.child_account_menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent code = new Intent(ChildActivity.this, CodeActivity.class);
+                code.putExtra("Intent", "ChildActivtiy");
+                startActivity(code);
+                finish();
+
+                return true;
+            }
+        });
+        popup.show();
+    }
 
     private void startTrackerService() {
         //startService(new Intent(this, TrackerService.class));
@@ -340,4 +408,17 @@ public class ChildActivity extends AppCompatActivity {
         ref.updateChildren(token_map);
 
     }
+
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.child_account_menu, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        Log.d(TAG, "onOptionsItemSelected: logout");
+//        return super.onOptionsItemSelected(item);
+//    }
 }
