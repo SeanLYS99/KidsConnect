@@ -206,8 +206,7 @@ public class PickRoleActivity extends AppCompatActivity {
 
     // Child
     private void checkChildInfo(PickRoleActivity activity){
-        String uid = firebaseAuth.getUid();
-
+        String uid = firebaseAuth.getCurrentUser().getUid();
         DatabaseReference ref = db.getReference(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

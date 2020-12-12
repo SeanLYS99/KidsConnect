@@ -9,16 +9,22 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,8 +53,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -62,14 +71,17 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -79,14 +91,18 @@ import butterknife.OnClick;
 
 public class ChildActivity extends AppCompatActivity {
 
-    @BindView(R.id.child_actionbar) Toolbar action_bar;
-    @BindView(R.id.three_dots_icon) ImageView three_dots_icon;
-    @BindView(R.id.toolbar_title) TextView title;
-    @BindView(R.id.greetings_msg) TextView greetings_msg;
+    @BindView(R.id.child_actionbar)
+    Toolbar action_bar;
+    @BindView(R.id.three_dots_icon)
+    ImageView three_dots_icon;
+    @BindView(R.id.actionbar_title)
+    TextView title;
+    @BindView(R.id.greetings_msg)
+    TextView greetings_msg;
 
     private static final int PERMISSIONS_REQUEST = 1;
     private String m_FCMtoken;
-//    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
+    //    final private String FCM_API = "https://fcm.googleapis.com/fcm/send";
 //    final private String serverKey = "key=" + "AAAAuehGYVg:APA91bGBm1WrCq8KYOp5wTZcFs5uz_BagLrHsLt9hBqBuVBdz2HhF7J-RlGJLeZPPuwJrraGO47I8ZcIGfRkNR3thu6HSc7_f6yAynVhV7JIVrURxiuykQNfqcXNPIwzxkkGgp2XGIZQ";
 //    final private String contentType = "application/json";
     final String TAG = "NOTIFICATION TAG";
@@ -95,8 +111,11 @@ public class ChildActivity extends AppCompatActivity {
     private FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
     public static String child_name;
     private Map<String, Object> locMap = new HashMap<>();
+    private Map<String, Object> appsMap = new HashMap<>();
     SharedPreferences sp, userType;
     private static int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 101;
+    private final int REQUEST_PHONE_CALL = 1;
+    private UploadTask uploadTask;
 
     // double tap exit
     private boolean doubleBackToExitPressedOnce;
@@ -117,6 +136,11 @@ public class ChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
+        if (ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
+        }
+
+        installedApps();
         ButterKnife.bind(this);
         setSupportActionBar(action_bar);
         three_dots_icon.setVisibility(View.VISIBLE);
@@ -136,13 +160,16 @@ public class ChildActivity extends AppCompatActivity {
 
         //child_name = getIntent().getStringExtra("child_name");
         child_name = sp.getString("name", null);
-        greetings_msg.setText("Hello, "+child_name);
+        greetings_msg.setText("Hello, " + child_name);
 
         //cname.setText(child_name);
 
         // add child's token to firebase realtime database
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
         saveToken();
+
+        // autostart
+        //addAutoStartup();
 
         // Check GPS is enabled
         try {
@@ -165,10 +192,8 @@ public class ChildActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         PERMISSIONS_REQUEST);
             }
-        }
-        catch (Exception e)
-        {
-            Log.d(TAG, "onCreate: "+e.getMessage());
+        } catch (Exception e) {
+            Log.d(TAG, "onCreate: " + e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -179,6 +204,29 @@ public class ChildActivity extends AppCompatActivity {
             doubleBackToExitPressedOnce = false;
         }
     };
+
+    private void addAutoStartup() {
+
+        try {
+            Intent intent = new Intent();
+            String manufacturer = android.os.Build.MANUFACTURER;
+            if ("xiaomi".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+            } else if ("oppo".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+            } else if ("vivo".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+            } else if ("Letv".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.letv.android.letvsafe", "com.letv.android.letvsafe.AutobootManageActivity"));
+            } else if ("Honor".equalsIgnoreCase(manufacturer)) {
+                intent.setComponent(new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"));
+            }
+
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e("exc", String.valueOf(e));
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -204,14 +252,14 @@ public class ChildActivity extends AppCompatActivity {
     };
 
     @OnClick(R.id.three_dots_icon)
-    public void click(View view){
+    public void click(View view) {
         PopupMenu popup = new PopupMenu(ChildActivity.this, view);
         popup.getMenuInflater().inflate(R.menu.child_account_menu, popup.getMenu());
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Intent code = new Intent(ChildActivity.this, CodeActivity.class);
-                code.putExtra("Intent", "ChildActivtiy");
+                code.putExtra("Intent", "ChildActivity");
                 startActivity(code);
                 finish();
 
@@ -229,34 +277,31 @@ public class ChildActivity extends AppCompatActivity {
         int permission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
-        if(Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= 29) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 // Request location updates and when an update is
                 // received, store the location in Firebase
                 client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        if(location != null){
+                        if (location != null) {
                             try {
                                 locMap.put("latitude", location.getLatitude());
                                 locMap.put("longitude", location.getLongitude());
-                                DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name).child("location");
+                                DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid() + "/" + child_name).child("location");
                                 ref.updateChildren(locMap);
-                            }
-                            catch (Exception e){
-                                Log.d(TAG, "getLocation error: "+e.getMessage());
+                            } catch (Exception e) {
+                                Log.d(TAG, "getLocation error: " + e.getMessage());
                             }
                         }
                     }
                 });
-            }
-            else if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+            } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
                 // show a permission request dialog
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
 
-            }
-            else{
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
 
             }
         }
@@ -267,15 +312,14 @@ public class ChildActivity extends AppCompatActivity {
             client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
-                    if(location != null){
+                    if (location != null) {
                         try {
                             locMap.put("latitude", location.getLatitude());
                             locMap.put("longitude", location.getLongitude());
-                            DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name).child("location");
+                            DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid() + "/" + child_name).child("location");
                             ref.updateChildren(locMap);
-                        }
-                        catch (Exception e){
-                            Log.d(TAG, "getLocation error: "+e.getMessage());
+                        } catch (Exception e) {
+                            Log.d(TAG, "getLocation error: " + e.getMessage());
                         }
                     }
                 }
@@ -294,15 +338,14 @@ public class ChildActivity extends AppCompatActivity {
             } else {
                 finish();
             }
-        }
-        catch (Exception e){
-            Log.d(TAG, "onRequestPermissionsResult: "+e.getMessage());
+        } catch (Exception e) {
+            Log.d(TAG, "onRequestPermissionsResult: " + e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
     @OnClick(R.id.SOS_btn)
-    public void SOS(){
+    public void SOS() {
         try {
             DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
             doc.get().addOnCompleteListener(task -> {
@@ -317,26 +360,22 @@ public class ChildActivity extends AppCompatActivity {
 
                             notification.put("to", document.getString("parentToken"));
                             notification.put("data", notificationBody);
-                        }
-                        catch (JSONException e) {
-                            Log.e(TAG, "onCreate: " + e.getMessage() );
+                        } catch (JSONException e) {
+                            Log.e(TAG, "onCreate: " + e.getMessage());
                         }
                         sendNotification(notification);
-                    }
-                    else {
+                    } else {
                         Toast.makeText(ChildActivity.this, "You haven't connect to your parent yet.", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
-            Log.d(TAG, "SOS: "+e.getMessage());
+        } catch (Exception e) {
+            Log.d(TAG, "SOS: " + e.getMessage());
             Toast.makeText(ChildActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void sendNotification(JSONObject notification){
+    private void sendNotification(JSONObject notification) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Constants.FCM_API, notification,
                 response -> {
                     Toast.makeText(ChildActivity.this, "Sent", Toast.LENGTH_LONG).show();
@@ -348,7 +387,7 @@ public class ChildActivity extends AppCompatActivity {
                         Toast.makeText(ChildActivity.this, "Request error", Toast.LENGTH_LONG).show();
                         Log.i(TAG, "onErrorResponse: Didn't works");
                     }
-                }){
+                }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -362,8 +401,8 @@ public class ChildActivity extends AppCompatActivity {
         MySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
     }
 
-    private void updateFirestore(){
-        String id = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("notification").document().getId();
+    private void updateFirestore() {
+        String id = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document().getId();
         DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document(id);
         /*StorageReference storageReference = storage.getReference().child("icons/notification_danger.png");
         Log.d(TAG, "updateFirestore: "+storageReference);
@@ -401,13 +440,117 @@ public class ChildActivity extends AppCompatActivity {
 
     }
 
-    private void saveToken(){
+    private void saveToken() {
         Map<String, Object> token_map = new HashMap<>();
         token_map.put("token", m_FCMtoken);
-        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/"+child_name);
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid() + "/" + child_name);
         ref.updateChildren(token_map);
 
     }
+
+
+    private void getInstalledApps() {
+        final PackageManager pm = getPackageManager();
+        //get a list of installed apps.
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo packageInfo : packages) {
+            Log.d(TAG, "getInstalledApps UID: " + packageInfo.uid);
+            Log.d(TAG, "Installed package :" + packageInfo.packageName);
+            Log.d(TAG, "Source dir : " + packageInfo.sourceDir);
+            Log.d(TAG, "Launch Activity :" + pm.getLaunchIntentForPackage(packageInfo.packageName));
+        }
+// the getLaunchIntentForPackage returns an intent that you can use with startActivity()
+    }
+
+    private void installedApps() {
+        String appId = null;
+        String appName = null;
+        String appIcon = null;
+        List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
+        for (int i = 0; i < packList.size(); i++) {
+            PackageInfo packInfo = packList.get(i);
+            if ((packInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                appId = String.valueOf(packInfo.applicationInfo.uid);
+                appName = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+                appIcon = String.valueOf(packInfo.applicationInfo.loadIcon(getPackageManager()));
+                Log.d(TAG, "installedApps: (" + i + ") " + appName);
+            }
+        }
+        Uri uri = Uri.parse(String.valueOf(appIcon));
+        Log.d(TAG, "apps icon uri: " + uri);
+        appsMap.put("id", appId);
+        appsMap.put("name", appName);
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid() + "/" + child_name).child("installedApps");
+        ref.updateChildren(appsMap);
+
+        StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("appsIcon/" + firebaseAuth.getCurrentUser().getUid() + "/" + child_name);
+        uploadTask = mStorageRef.putFile(uri);
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return mStorageRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            String imageUrl = task.getResult().toString();
+                            Log.d(TAG, "imageURL: " + imageUrl);
+                        }
+                    }
+                });
+
+            }
+        });
+    }
+}
+
+//    class PInfo {
+//        private String appname = "";
+//        private String pname = "";
+//        private String versionName = "";
+//        private int versionCode = 0;
+//        private Drawable icon;
+//        private void prettyPrint() {
+//            Log.e("hi",appname + "\t" + pname + "\t" + versionName + "\t" + versionCode);
+//        }
+//    }
+//
+//    private ArrayList<PInfo> getPackages() {
+//        ArrayList<PInfo> apps = getInstalledApps(false); /* false = no system packages */
+//        final int max = apps.size();
+//        for (int i=0; i<max; i++) {
+//            apps.get(i).prettyPrint();
+//        }
+//        return apps;
+//    }
+//
+//    private ArrayList<PInfo> getInstalledApps(boolean getSysPackages) {
+//        ArrayList<PInfo> res = new ArrayList<PInfo>();
+//        List<PackageInfo> packs = getPackageManager().getInstalledPackages(0);
+//        for(int i=0;i<packs.size();i++) {
+//            PackageInfo p = packs.get(i);
+//            if ((!getSysPackages) && (p.versionName == null)) {
+//                continue ;
+//            }
+//            PInfo newInfo = new PInfo();
+//            newInfo.appname = p.applicationInfo.loadLabel(getPackageManager()).toString();
+//            newInfo.pname = p.packageName;
+//            newInfo.versionName = p.versionName;
+//            newInfo.versionCode = p.versionCode;
+//            newInfo.icon = p.applicationInfo.loadIcon(getPackageManager());
+//            res.add(newInfo);
+//        }
+//        Log.d(TAG, "getInstalledApps with bool: "+res);
+//        return res;
+//    }
 
 
 //    @Override
@@ -421,4 +564,3 @@ public class ChildActivity extends AppCompatActivity {
 //        Log.d(TAG, "onOptionsItemSelected: logout");
 //        return super.onOptionsItemSelected(item);
 //    }
-}

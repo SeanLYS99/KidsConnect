@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TAGa", "user: "+user);
         if (user != null && userType.contains("parents")) // make sure it is parent logging in
         {
-            Intent intent = new Intent(MainActivity.this, ParentActivity.class);
+            Intent intent = new Intent(MainActivity.this, CodeActivity.class);
+            intent.putExtra("Intent", "MainActivity");
             startActivity(intent);
             finish();
         }

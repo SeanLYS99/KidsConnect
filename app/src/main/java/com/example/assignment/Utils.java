@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -150,6 +151,14 @@ public class Utils {
     public static boolean isValidEmail(EditText email, TextInputLayout emailLayout){
         if(!emailType(email.getText().toString())){
             emailLayout.setError("Invalid email: a@b.c*");
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isValidPhoneNumber(EditText phone, TextInputLayout phoneLayout){
+        if(phone.getText().toString().length() < 10 ||phone.getText().toString().length() > 11){
+            phoneLayout.setError("Phone number must be 10 or 11 digits");
             return false;
         }
         return true;

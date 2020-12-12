@@ -121,7 +121,7 @@ public class NotificationsFragment extends Fragment {
 
     private void setupMsg(){
         try {
-            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification").orderBy("datetime", Query.Direction.DESCENDING);
+            Query query = db.collection("UserInfo").document(currentUser.getUid()).collection("notification").orderBy("datetime", Query.Direction.ASCENDING);
             //CollectionReference doc = db.collection("UserInfo").document(currentUser.getUid()).collection("notification");
             FirestoreRecyclerOptions<notificationModel> options = new FirestoreRecyclerOptions.Builder<notificationModel>()
                     .setQuery(query, notificationModel.class)

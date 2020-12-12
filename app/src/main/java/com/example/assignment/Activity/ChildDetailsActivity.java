@@ -139,7 +139,7 @@ public class ChildDetailsActivity extends AppCompatActivity {
             userMap.put("name", name);
             userMap.put("age", age);
 
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid() + "/" + name);
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(firebaseAuth.getCurrentUser().getUid() + "/" + name);
             ref.updateChildren(userMap);
             pb.setVisibility(View.INVISIBLE);
             Intent child = new Intent(ChildDetailsActivity.this, ChildActivity.class);

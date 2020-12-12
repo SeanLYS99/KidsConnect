@@ -15,7 +15,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.assignment.Activity.AppActivity;
 import com.example.assignment.Activity.GeofenceActivity;
+import com.example.assignment.Activity.TrackingActivity;
 import com.example.assignment.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -66,7 +68,8 @@ public class FeaturesFragment extends Fragment {
 
     @OnClick(R.id.Tracking_CardView)
     public void startTracking() {
-        Toast.makeText(getContext(), "hi", Toast.LENGTH_SHORT).show();
+         Intent tracking = new Intent(getActivity(), TrackingActivity.class);
+         startActivity(tracking);
 //        String token;
 //        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
 //        ref.addValueEventListener(new ValueEventListener() {
@@ -82,5 +85,11 @@ public class FeaturesFragment extends Fragment {
 //
 //            }
 //        });
+    }
+
+    @OnClick(R.id.Applock_CardView)
+    public void applock(){
+        Intent applock = new Intent(getActivity(), AppActivity.class);
+        startActivity(applock);
     }
 }

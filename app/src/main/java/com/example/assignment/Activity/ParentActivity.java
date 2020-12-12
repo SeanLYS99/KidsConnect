@@ -120,7 +120,7 @@ public class ParentActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("userType", "parents");
         editor.apply();
-        toolbar_title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolbar_title = (TextView) toolbar.findViewById(R.id.actionbar_title);
         //this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));*/
 
         // Transparent Status Bar

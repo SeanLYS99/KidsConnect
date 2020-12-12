@@ -121,7 +121,7 @@ public class GeofenceActivity extends AppCompatActivity {
 
     private void setupGeofence(){
         try{
-            Query query = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing");
+            Query query = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("geofencing");
             FirestoreRecyclerOptions<geofencingModel> options = new FirestoreRecyclerOptions.Builder<geofencingModel>()
                     .setQuery(query, geofencingModel.class)
                     .build();

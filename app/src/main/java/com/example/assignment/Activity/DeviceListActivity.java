@@ -155,7 +155,7 @@ public class DeviceListActivity extends AppCompatActivity {
 
     private void setupDevice(){
         pb.setVisibility(View.VISIBLE);
-        Query query = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid());
+        Query query = FirebaseDatabase.getInstance().getReference(firebaseAuth.getCurrentUser().getUid());
         Log.e("qq", query.toString());
         FirebaseRecyclerOptions<deviceModel> options = new FirebaseRecyclerOptions.Builder<deviceModel>()
                 .setQuery(query, deviceModel.class)

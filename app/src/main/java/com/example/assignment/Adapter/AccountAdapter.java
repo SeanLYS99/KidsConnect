@@ -64,7 +64,6 @@ public class AccountAdapter extends FirebaseRecyclerAdapter<accountModel, Accoun
                 editor.apply();
                 context.startActivity(intent);
                 ((Activity)context).finish();
-                Toast.makeText(context, accountModel.getName(), Toast.LENGTH_SHORT).show();
             }
         });
         /*view.setOnClickListener(new View.OnClickListener() {

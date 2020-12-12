@@ -92,8 +92,6 @@ public class MapsFragment extends Fragment {
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private GoogleMap mMap;
-    private GeofencingClient geofencingClient;
-    private GeofenceHelper geofenceHelper;
     private String GEOFENCE_ID;
     //private LatLng latlng;
     private static final String TAG = "MapsFragment";
@@ -140,8 +138,6 @@ public class MapsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        geofencingClient = LocationServices.getGeofencingClient(getContext());
-        geofenceHelper = new GeofenceHelper(getContext());
         View root = inflater.inflate(R.layout.fragment_maps, container, false);
         ButterKnife.bind(this, root);
         pb.setVisibility(View.VISIBLE);
@@ -276,7 +272,6 @@ public class MapsFragment extends Fragment {
         try {
             String key = dataSnapshot.getKey();
             DataSnapshot loc = dataSnapshot.child("location");
-            Log.e("key", loc.toString());
             HashMap<String, Object> value = (HashMap<String, Object>) loc.getValue();
             double lat = Double.parseDouble(value.get("latitude").toString());
             double lng = Double.parseDouble(value.get("longitude").toString());

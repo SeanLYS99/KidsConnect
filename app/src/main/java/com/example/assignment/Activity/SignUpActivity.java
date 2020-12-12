@@ -54,10 +54,12 @@ public class SignUpActivity extends AppCompatActivity {
     @BindView(R.id.SignUpEmailLayout) TextInputLayout emailLayout;
     @BindView(R.id.SignUpPasswordLayout) TextInputLayout passwordLayout;
     @BindView(R.id.SignUpConfirmPasswordLayout) TextInputLayout cpasswordLayout;
+    @BindView(R.id.SignUpPhoneLayout) TextInputLayout phoneLayout;
     @BindView(R.id.SignUpUsernameText) EditText username;
     @BindView(R.id.SignUpEmailText) EditText email;
     @BindView(R.id.SignUpPasswordText) EditText password;
     @BindView(R.id.SignUpConfirmPasswordText) EditText cpassword;
+    @BindView(R.id.SignUpPhoneText) EditText phone;
     @BindView(R.id.SignUpButton2) Button signupBtn;
     @BindView(R.id.LoginButton2) Button loginBtn;
     @BindView(R.id.progress_bar) ConstraintLayout progressbar;
@@ -99,11 +101,11 @@ public class SignUpActivity extends AppCompatActivity {
         progressbar.setVisibility(View.VISIBLE);
         if(!Utils.passwordMatch(password, cpassword, cpasswordLayout) | !Utils.isValidEmail(email, emailLayout) |
                 !Utils.hasEmail(email, emailLayout) | !Utils.hasPassword(password, passwordLayout) |
-                !Utils.hasUsername(username, usernameLayout) | !Utils.hasCPassword(cpassword, cpasswordLayout)){
+                !Utils.hasUsername(username, usernameLayout) | !Utils.hasCPassword(cpassword, cpasswordLayout) | !Utils.isValidPhoneNumber(phone, phoneLayout)){
             progressbar.setVisibility(View.INVISIBLE);
             return;
         }
-        startSignUp(username.getText().toString(), email.getText().toString(), password.getText().toString());
+        startSignUp(username.getText().toString(), email.getText().toString(), password.getText().toString(), phone.getText().toString());
     }
 
     @OnClick(R.id.SignUpBackButton)
@@ -148,12 +150,12 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void startSignUp(String name, String email, String password){
+    private void startSignUp(String name, String email, String password, String phone){
         try {
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            updateUserInfo(name, firebaseAuth.getCurrentUser());
+                            updateUserInfo(name, firebaseAuth.getCurrentUser(), phone);
                         } else {
                             //Toast.makeText(SignUpActivity.this, "User sign up failed", Toast.LENGTH_SHORT).show();
                         /*FirebaseAuthException e = (FirebaseAuthException )task.getException();
@@ -175,10 +177,11 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void saveUserInfo(String userUID, String username){
+    private void saveUserInfo(String userUID, String username, String phone){
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("userID", userUID);
         userMap.put("username", username);
+        userMap.put("phone", phone);
 
         try {
             db.collection("UserInfo")
@@ -204,7 +207,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUserInfo(final String name, final FirebaseUser currentUser){
+    private void updateUserInfo(final String name, final FirebaseUser currentUser, String phone){
         try {
             if (currentUser != null) {
                 UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
@@ -216,7 +219,7 @@ public class SignUpActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
-                                    saveUserInfo(currentUser.getUid(), name);
+                                    saveUserInfo(currentUser.getUid(), name, phone);
                                 }
                             }
                         });

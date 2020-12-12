@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -64,93 +65,120 @@ public class FCMMsgService extends FirebaseMessagingService {
     List<String> id_list = new ArrayList<>();
     List<Integer> radius_list = new ArrayList<>();
     List<LatLng> latlng_list = new ArrayList<>();
+    private static ArrayList<Long> alreadyNotifiedTimestamps = new ArrayList<>();
     private int count;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        String title = remoteMessage.getData().get("title");
-        String message = remoteMessage.getData().get("message");
-        Log.d(TAG, "onMessageReceived: " + title);
-        if (title.equals("SOS!")) {
-            Log.d(TAG, "onMessageTitle: SOS");
-            final Intent intent = new Intent(this, ParentActivity.class);
-            //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
-            //startService(new Intent(this, TrackerService.class));
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int notificationID = new Random().nextInt(3000);
+        if (!isDuplicate(remoteMessage.getSentTime())) {
+            String title = remoteMessage.getData().get("title");
+            String message = remoteMessage.getData().get("message");
+            Log.d(TAG, "onMessageReceived: " + title);
+            if (title.equals("SOS!") || title.equals("Sapphire has entered geofence") || title.equals("Sapphire has left geofence")) {
+                Log.d(TAG, "onMessageTitle: SOS");
+                if(title.equals("SOS!")){
+                    Log.d(TAG, "call: ");
+                    DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                DocumentSnapshot snapshot = task.getResult();
+                                String phone = snapshot.getString("phone");
+                                Intent call = new Intent(Intent.ACTION_CALL);
+                                call.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                call.setData(Uri.parse("tel:" + phone));
+                                startActivity(call);
+                            }
+                        }
+                    });
+
+                }
+                final Intent intent = new Intent(this, ParentActivity.class);
+                //Toast.makeText(getApplicationContext(), "hi", Toast.LENGTH_SHORT).show();
+                //startService(new Intent(this, TrackerService.class));
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                int notificationID = new Random().nextInt(3000);
 
               /*
                 Apps targeting SDK 26 or above (Android O) must implement notification channels and add its notifications
                 to at least one of them. Therefore, confirm if version is Oreo or higher, then setup notification channel
               */
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                setupChannels(notificationManager);
-            }
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    setupChannels(notificationManager);
+                }
 
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
-                    PendingIntent.FLAG_ONE_SHOT);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                        PendingIntent.FLAG_ONE_SHOT);
 
-            Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
-                    R.mipmap.ic_launcher);
+                Bitmap largeIcon = BitmapFactory.decodeResource(getResources(),
+                        R.mipmap.ic_launcher);
 
-            //DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("notification").document()
-            Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setLargeIcon(largeIcon)
-                    .setContentTitle(remoteMessage.getData().get("title"))
-                    //.setContentText(child_act.child_name + " is in danger!")
-                    .setContentText(remoteMessage.getData().get("message"))
-                    .setAutoCancel(true)
-                    .setSound(notificationSoundUri)
-                    .setContentIntent(pendingIntent);
+                //DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("notification").document()
+                Uri notificationSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setLargeIcon(largeIcon)
+                        .setContentTitle(title)
+                        //.setContentText(child_act.child_name + " is in danger!")
+                        .setContentText(message)
+                        .setAutoCancel(true)
+                        .setSound(notificationSoundUri)
+                        .setContentIntent(pendingIntent);
 
-            //Set notification color to match your app color template
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notificationBuilder.setColor(getResources().getColor(R.color.colorPrimaryDark));
-            }
-            notificationManager.notify(notificationID, notificationBuilder.build());
-        }
-        else if (title.equals("Background Service")) {
-            geofencingClient = LocationServices.getGeofencingClient(getBaseContext());
-            geofenceHelper = new GeofenceHelper(getApplicationContext());
-            Log.d(TAG, "onMessageTitle: Geofence");
+                //Set notification color to match your app color template
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    notificationBuilder.setColor(getResources().getColor(R.color.colorPrimaryDark));
+                }
+                notificationManager.notify(notificationID, notificationBuilder.build());
 
-            retrieveData(new FirebaseCallBack() {
-                @Override
-                public void onCallback(List<String> id, List<LatLng> latlng_list, List<Integer> rad) {
-                    //Log.d(TAG, "id_list: " + id_list.size() + "latlng_list: " + latlng_list.size() + "rad_list: " + rad.size());
-                    if (id_list.size() == rad.size() && id_list.size() == latlng_list.size()) { // make sure all the values are stored in the list
-                        setGeofence();
-                        Log.d(TAG, "id_list: " + id_list.get(0) + "latlng_list: " + latlng_list.get(0) + "rad_list: " + rad.get(0));
+            } else if (title.equals("Background Service")) {
+                String parent_token = message;
+                Log.d(TAG, "onMessageReceived: " + parent_token);
+                geofencingClient = LocationServices.getGeofencingClient(getBaseContext());
+                geofenceHelper = new GeofenceHelper(getApplicationContext(), parent_token);
+
+                retrieveData(new FirebaseCallBack() {
+                    @Override
+                    public void onCallback(List<String> id, List<LatLng> latlng_list, List<Integer> rad) {
+                        //Log.d(TAG, "id_list: " + id_list.size() + "latlng_list: " + latlng_list.size() + "rad_list: " + rad.size());
+                        if (id_list.size() == rad.size() && id_list.size() == latlng_list.size()) { // make sure all the values are stored in the list
+                            setGeofence();
+                            Log.d(TAG, "id_list: " + id_list.get(0) + "latlng_list: " + latlng_list.get(0) + "rad_list: " + rad.get(0));
 
 
                             Log.d(TAG, "onCallback: DONE");
 
+                        }
                     }
-                }
-            });
-        }
-        else if(title.equals("Remove Geofence")){
-            geofencingClient = LocationServices.getGeofencingClient(getBaseContext());
-            geofenceHelper = new GeofenceHelper(getApplicationContext());
-            PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
-            geofencingClient.removeGeofences(pendingIntent)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "Geofence Removed... ");
-                        DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document(message);
-                        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Utils.SuccessSweetDialog(getBaseContext(), "Success!", "Geofence deleted successfully.", "OK", null);
-                            }
+                });
+            } else if (title.equals("Remove Geofence")) {
+                geofencingClient = LocationServices.getGeofencingClient(getBaseContext());
+                geofenceHelper = new GeofenceHelper(getApplicationContext(), message);
+                PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
+                geofencingClient.removeGeofences(pendingIntent)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Geofence Removed... ");
+                            DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("geofencing").document(message);
+                            ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                }
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.d(TAG, "Failed to remove geofence: " + e.getMessage());
                         });
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.d(TAG, "Failed to remove geofence: "+e.getMessage());
-                    });
+            } else if (title.equals("Tracking")) {
+                if (message.equals("Start")) {
+                    startService(new Intent(this, TrackerService.class));
+                } else {
+                    stopService(new Intent(this, TrackerService.class));
+                    stopSelf();
+                }
+            }
         }
     }
 
@@ -172,7 +200,7 @@ public class FCMMsgService extends FirebaseMessagingService {
 
     private void retrieveData(FirebaseCallBack firebaseCallBack) {
         // Refer to firestore collection
-        CollectionReference ref = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing");
+        CollectionReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("geofencing");
         ref.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -246,7 +274,7 @@ public class FCMMsgService extends FirebaseMessagingService {
                 Log.d(TAG, "setGeofence: loop started");
                 Log.d(TAG, "id_list: " + id_list.get(count) + "latlng_list: " + latlng_list.get(count) + "rad_list: " + radius_list.get(count));
                 // Set geofence's rule. example: lat,lng,radius,initial trigger ...
-                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+                Geofence geofence = geofenceHelper.getGeofence(id_list.get(count), latlng_list.get(count), radius_list.get(count), Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
                 GeofencingRequest request = geofenceHelper.getGeofencingRequest(geofence);
                 PendingIntent pendingIntent = geofenceHelper.getPendingIntent();
 
@@ -266,4 +294,27 @@ public class FCMMsgService extends FirebaseMessagingService {
             }
         }
     }
+
+    // Workaround for Firebase duplicate pushes
+    private boolean isDuplicate(long timestamp) {
+        if (alreadyNotifiedTimestamps.contains(timestamp)) {
+            alreadyNotifiedTimestamps.remove(timestamp);
+            return true;
+        } else {
+            alreadyNotifiedTimestamps.add(timestamp);
+        }
+
+        return false;
+    }
+
+    /*protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d(TAG, "received stop broadcast");
+            // Stop the service when the notification is tapped
+            unregisterReceiver(stopReceiver);
+            stopSelf();
+        }
+    };*/
+
 }

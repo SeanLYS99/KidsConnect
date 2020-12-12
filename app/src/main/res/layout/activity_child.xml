@@ -45,7 +45,7 @@
     <TextView
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="After pressing the SOS button, an emergency notification will be sent to your parent along with your current location."
+        android:text="After pressing the SOS button, we will call your parent and send an emergency notification to their device."
         app:layout_constraintBottom_toBottomOf="parent"
         android:textColor="#E10600"
         android:textAlignment="center"

@@ -57,8 +57,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -100,12 +102,14 @@ public class AddGeofenceActivity extends AppCompatActivity {
     private LatLng map_location;
     private int RADIUS = 100;
     private Circle circle;
+    private String parent_token;
     private int VALID_ADDRESS_CODE = 1;
     String from_where;
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 102;
 
     // List
     List<String> child_token_list = new ArrayList<>();
+    List<String> child_name_list = new ArrayList<>();
 
     // Firebase
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -113,7 +117,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
     FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
 
     // to differentiate save button function
-    private String id = db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document().getId();
+    private String id = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("geofencing").document().getId();
 
 
     @BindView(R.id.geofence_location_input) TextInputEditText input;
@@ -209,22 +213,34 @@ public class AddGeofenceActivity extends AppCompatActivity {
 
         readToken(new FirebaseCallBack() {
             @Override
-            public void onCallBack(List<String> token_list) {
+            public void onCallBack(List<String> token_list, List<String> name_list) {
                 if(token_list != null){
                     for(int i=0; i<token_list.size(); i++){
                         JSONObject notification = new JSONObject();
                         JSONObject notificationBody = new JSONObject();
-                        try {
-                            notificationBody.put("title", "Background Service");
-                            notificationBody.put("message", "Geofence");
-
-                            notification.put("to", token_list.get(i));
-                            notification.put("data", notificationBody);
-                        }
-                        catch (JSONException e) {
-                            Log.d(TAG, "onCallBack: "+e.getMessage());
-                        }
-                        sendBackgroundNotification(notification);
+                        final int temp = i;
+                        DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    DocumentSnapshot snapshot = task.getResult();
+                                    parent_token = snapshot.get("parentToken").toString();
+                                    // push notification to child
+                                    //Utils.StructureJSON("Background Service", parent_token, token_list.get(temp), AddGeofenceActivity.this);
+                                    try {
+                                        notificationBody.put("title", "Background Service");
+                                        notificationBody.put("message", parent_token); // send parent token to child, so child can send back to parent when they entered a geofence
+                                        notification.put("to", token_list.get(temp));
+                                        notification.put("data", notificationBody);
+                                        sendBackgroundNotification(notification);
+                                        Utils.StructureJSON("Background Service", parent_token, token_list.get(temp), AddGeofenceActivity.this);
+                                    } catch (JSONException e) {
+                                        Log.d(TAG, "onComplete Failure: "+e.getMessage());
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
             }
@@ -255,7 +271,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
         geofencingMap.put("LatLng", loc);
 
         try {
-            db.collection("UserInfo").document(firebaseAuth.getUid()).collection("geofencing").document(docID)
+            db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("geofencing").document(docID)
                     .set(geofencingMap, SetOptions.merge())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -456,14 +472,15 @@ public class AddGeofenceActivity extends AppCompatActivity {
     }
 
     private void readToken(FirebaseCallBack firebaseCallBack){
-        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid());
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Log.d(TAG, "onDataChange: "+snapshot);
                     child_token_list.add(snapshot.child("token").getValue().toString());
-                    firebaseCallBack.onCallBack(child_token_list);
+                    child_name_list.add(snapshot.child("name").getValue().toString());
+                    firebaseCallBack.onCallBack(child_token_list, child_name_list);
                     Log.d(TAG, "onDataChange: "+child_token_list);
                 }
             }
@@ -476,7 +493,7 @@ public class AddGeofenceActivity extends AppCompatActivity {
     }
 
     private interface FirebaseCallBack{
-        void onCallBack(List<String> token_list);
+        void onCallBack(List<String> token_list, List<String> name_list);
     }
 
     private void sendBackgroundNotification(JSONObject notification){

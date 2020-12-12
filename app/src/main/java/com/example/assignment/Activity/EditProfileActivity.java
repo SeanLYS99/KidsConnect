@@ -138,7 +138,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         phone.setText(document.getString("phone"));
                     } else {
                         progressbar.setVisibility(View.INVISIBLE);
-                        phone.setHint("eg. 012-34567890");
+                        phone.setHint("eg. 01234567890");
                     }
                 }
             });

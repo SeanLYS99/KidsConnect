@@ -44,7 +44,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/Geofence_CardView"
+        android:id="@+id/Tracking_CardView"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginLeft="20dp"
@@ -52,6 +52,58 @@
         app:cardElevation="5dp"
         app:cardCornerRadius="8dp"
         app:layout_constraintTop_toBottomOf="@+id/location_title">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/tracking_image"
+                android:layout_width="80dp"
+                android:padding="15dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/features_location"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tracking_text"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:gravity="left|center"
+                android:text="Location Tracking"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tracking_image"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:gravity="left|top"
+                android:paddingRight="20dp"
+                android:maxLines="2"
+                android:text="Keep an eyes on your kid's real-time location using Google Map"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tracking_image"
+                app:layout_constraintTop_toBottomOf="@+id/tracking_text" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/Geofence_CardView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="18dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/Tracking_CardView">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -94,40 +146,77 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/app_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Geofence_CardView">
+
+        <View
+            android:id="@+id/app_view"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="18dp"
+            android:background="@color/quantum_purple400"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:fontFamily="@font/robotolight"
+            android:gravity="left|center"
+            android:text="Screen Time"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/app_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.cardview.widget.CardView
-        android:id="@+id/Tracking_CardView"
+        android:id="@+id/Applock_CardView"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="18dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/Geofence_CardView">
+        app:layout_constraintTop_toBottomOf="@+id/app_title">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/tracking_image"
+                android:id="@+id/applock_image"
                 android:layout_width="80dp"
-                android:padding="15dp"
+                android:padding="20dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/features_location"
+                android:src="@drawable/features_applock"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tracking_text"
+                android:id="@+id/applock_text"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:gravity="left|center"
-                android:text="Location Tracking"
+                android:text="Screen Time"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tracking_image"
+                app:layout_constraintStart_toEndOf="@+id/applock_image"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -136,12 +225,12 @@
                 android:gravity="left|top"
                 android:paddingRight="20dp"
                 android:maxLines="2"
-                android:text="Keep an eyes on your kid's real-time location using Google Map"
+                android:text="View kid's installed application, and set restrictions for the apps usage"
                 android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/tracking_image"
-                app:layout_constraintTop_toBottomOf="@+id/tracking_text" />
+                app:layout_constraintStart_toEndOf="@+id/applock_image"
+                app:layout_constraintTop_toBottomOf="@+id/applock_text" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

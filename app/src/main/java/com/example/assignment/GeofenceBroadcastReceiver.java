@@ -24,7 +24,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
-
+        Log.d(TAG, "onReceive parent token: "+intent.getStringExtra("token"));
         NotificationHelper notificationHelper = new NotificationHelper(context);
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
@@ -45,10 +45,14 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transition_type){
             case Geofence.GEOFENCE_TRANSITION_ENTER: // send noti to fcm
-                notificationHelper.sendHighPriorityNotification("Geofence ENTERED", "your kid has entered home", ParentActivity.class);
+                //notificationHelper.sendHighPriorityNotification("Geofence ENTERED", "your kid has entered home", ParentActivity.class);
+                Utils.StructureJSON("Sapphire has entered geofence", "Tap to open app and see where Sapphire is", intent.getStringExtra("token"), context);
+                break;
+            case Geofence.GEOFENCE_TRANSITION_DWELL:
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                notificationHelper.sendHighPriorityNotification("Geofence EXIT", "your kid has exit home", ParentActivity.class);
+                //notificationHelper.sendHighPriorityNotification("Geofence EXIT", "your kid has exit home", ParentActivity.class);
+                Utils.StructureJSON("Sapphire has left geofence", "Tap to open app and see where Sapphire is", intent.getStringExtra("token"), context);
                 break;
         }
     }

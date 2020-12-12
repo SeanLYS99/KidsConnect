@@ -36,119 +36,150 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </RelativeLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="16dp"
         android:layout_below="@id/SignUpToolbar"
-        android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/SignUpUsernameLayout"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:scrollbars="none">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:errorEnabled="true"
-            android:layout_below="@id/CreateAccountText"
-            style="@style/TextInputLayoutOutlinedBox"
-            android:layout_marginTop="10dp"
-            app:boxStrokeColor="@color/mainColor"
-            app:endIconMode="clear_text"
-            android:hint="@string/username">
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"
+            android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/SignUpUsernameText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/SignUpUsernameLayout"
+                style="@style/TextInputLayoutOutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                style="@style/InputText"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_below="@id/CreateAccountText"
+                android:layout_marginTop="10dp"
+                android:hint="@string/username"
+                app:boxStrokeColor="@color/mainColor"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/SignUpEmailLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/TextInputLayoutOutlinedBox"
-            android:layout_marginTop="10dp"
-            app:errorEnabled="true"
-            app:boxStrokeColor="@color/mainColor"
-            app:endIconMode="clear_text"
-            android:hint="@string/email">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/SignUpUsernameText"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/SignUpEmailText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/SignUpEmailLayout"
+                style="@style/TextInputLayoutOutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress"
-                style="@style/InputText"/>
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="10dp"
+                android:hint="@string/email"
+                app:boxStrokeColor="@color/mainColor"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/SignUpPasswordLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/TextInputLayoutOutlinedBox"
-            android:layout_marginTop="10dp"
-            app:passwordToggleEnabled="true"
-            app:boxStrokeColor="@color/mainColor"
-            app:errorEnabled="true"
-            android:hint="@string/password">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/SignUpEmailText"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/SignUpPasswordText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/SignUpPasswordLayout"
+                style="@style/TextInputLayoutOutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                style="@style/InputText"/>
+                android:layout_marginTop="10dp"
+                android:hint="@string/password"
+                app:boxStrokeColor="@color/mainColor"
+                app:errorEnabled="true"
+                app:passwordToggleEnabled="true">
 
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/SignUpConfirmPasswordLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            style="@style/TextInputLayoutOutlinedBox"
-            app:passwordToggleEnabled="true"
-            app:boxStrokeColor="@color/mainColor"
-            android:hint="@string/confirmPassword"
-            app:errorEnabled="true">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/SignUpPasswordText"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/SignUpConfirmPasswordText"
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/SignUpConfirmPasswordLayout"
+                style="@style/TextInputLayoutOutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                style="@style/InputText"/>
+                android:layout_marginTop="10dp"
+                android:hint="@string/confirmPassword"
+                app:boxStrokeColor="@color/mainColor"
+                app:errorEnabled="true"
+                app:passwordToggleEnabled="true">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/SignUpConfirmPasswordText"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/SignUpButton2"
-            android:layout_width="match_parent"
-            android:background="@drawable/button"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/textInputLayout_password"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            app:cornerRadius="30dp"
-            android:text="@string/signup"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/LoginButton2"
-            android:background="@drawable/gradient_border"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"
-            android:textColor="@color/mainColor"
-            android:textAllCaps="false"
-            app:rippleColor="@color/colorPrimaryDark"
-            style="?android:attr/borderlessButtonStyle"
-            android:text="@string/login"/>
-    </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/SignUpPhoneLayout"
+                style="@style/TextInputLayoutOutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/SignUpConfirmPasswordLayout"
+                android:layout_marginTop="10dp"
+                android:hint="Phone Number"
+                app:boxStrokeColor="@color/mainColor"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/SignUpPhoneText"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="11" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/SignUpButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textInputLayout_password"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/button"
+                android:text="@string/signup"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:cornerRadius="30dp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/LoginButton2"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="30dp"
+                android:background="@drawable/gradient_border"
+                android:text="@string/login"
+                android:textAllCaps="false"
+                android:textColor="@color/mainColor"
+                android:textSize="16sp"
+                app:rippleColor="@color/colorPrimaryDark" />
+        </LinearLayout>
+    </ScrollView>
     <include
         android:id="@+id/progress_bar"
         layout="@layout/progressbar"/>

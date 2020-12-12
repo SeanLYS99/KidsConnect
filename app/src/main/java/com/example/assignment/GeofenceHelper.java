@@ -17,9 +17,11 @@ public class GeofenceHelper extends ContextWrapper {
 
     private static final String TAG = "GeofenceHelper";
     PendingIntent pendingIntent;
+    private String parent_token;
 
-    public GeofenceHelper(Context base) {
+    public GeofenceHelper(Context base, String parent_token) {
         super(base);
+        this.parent_token = parent_token;
     }
 
     public GeofencingRequest getGeofencingRequest(Geofence geofence){
@@ -48,6 +50,7 @@ public class GeofenceHelper extends ContextWrapper {
         }
         
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
+        intent.putExtra("token", parent_token);
         pendingIntent = PendingIntent.getBroadcast(this, 2607, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
     }

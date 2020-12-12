@@ -92,7 +92,7 @@ public class GeofencingAdapter extends FirestoreRecyclerAdapter<geofencingModel,
                     @Override
                     public void onClick(SweetAlertDialog sDialog) {
                         sDialog.dismissWithAnimation();
-                        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid());
+                        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid());
                         ref.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

@@ -69,6 +69,11 @@ public class TrackerService extends Service {
         }
     };
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     private void loginToFirebase() {
         // Functionality coming next step
         FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -95,7 +100,7 @@ public class TrackerService extends Service {
 
     private void requestLocationUpdates() {
         // Functionality coming next step
-        String uid = firebaseAuth.getUid();
+        String uid = firebaseAuth.getCurrentUser().getUid();
         String name = sp.getString("name", null);
         //Log.e("uid",name);
         LocationRequest request = new LocationRequest();
