@@ -1,6 +1,7 @@
 package com.example.assignment.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -8,6 +9,9 @@ import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.app.AppOpsManager;
+import android.app.IntentService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -115,6 +119,7 @@ public class ChildActivity extends AppCompatActivity {
     SharedPreferences sp, userType;
     private static int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 101;
     private final int REQUEST_PHONE_CALL = 1;
+    private final int REQUEST_PACKAGE_USAGE = 101;
     private UploadTask uploadTask;
 
     // double tap exit
@@ -136,11 +141,22 @@ public class ChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
+        if(!isAccessGranted()){
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            startActivity(intent);
+        }
+
         if (ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
         }
 
-        installedApps();
+//        if (ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.GET_TASKS) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.GET_TASKS}, REQUEST_GET_TASK);
+//        }
+
+//        if(ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.PACKAGE_USAGE_STATS) != PackageManager.PERMISSION_GRANTED){
+//            ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.PACKAGE_USAGE_STATS}, REQUEST_PACKAGE_USAGE);
+//        }
         ButterKnife.bind(this);
         setSupportActionBar(action_bar);
         three_dots_icon.setVisibility(View.VISIBLE);
@@ -167,6 +183,7 @@ public class ChildActivity extends AppCompatActivity {
         // add child's token to firebase realtime database
         m_FCMtoken = FirebaseInstanceId.getInstance().getToken();
         saveToken();
+        installedApps();
 
         // autostart
         //addAutoStartup();
@@ -352,18 +369,20 @@ public class ChildActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.get("parentToken") != null) {
-                        JSONObject notification = new JSONObject();
-                        JSONObject notificationBody = new JSONObject();
-                        try {
-                            notificationBody.put("title", "SOS!");
-                            notificationBody.put("message", child_name + " is in danger!");
-
-                            notification.put("to", document.getString("parentToken"));
-                            notification.put("data", notificationBody);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "onCreate: " + e.getMessage());
-                        }
-                        sendNotification(notification);
+                        Utils.StructureJSON("SOS!", child_name+" is in danger!", document.getString("parentToken"), ChildActivity.this);
+                        updateFirestore();
+                        //                        JSONObject notification = new JSONObject();
+//                        JSONObject notificationBody = new JSONObject();
+//                        try {
+//                            notificationBody.put("title", "SOS!");
+//                            notificationBody.put("message", child_name + " is in danger!");
+//
+//                            notification.put("to", document.getString("parentToken"));
+//                            notification.put("data", notificationBody);
+//                        } catch (JSONException e) {
+//                            Log.e(TAG, "onCreate: " + e.getMessage());
+//                        }
+//                        sendNotification(notification);
                     } else {
                         Toast.makeText(ChildActivity.this, "You haven't connect to your parent yet.", Toast.LENGTH_SHORT).show();
                     }
@@ -464,29 +483,44 @@ public class ChildActivity extends AppCompatActivity {
     }
 
     private void installedApps() {
-        String appId = null;
-        String appName = null;
-        String appIcon = null;
+        // Drawable appIcon;
+        List<String> appIdList = new ArrayList<>();
+        List<String> appNameList = new ArrayList<>();
+        List<String> appPackageNameList = new ArrayList<>();
         List<PackageInfo> packList = getPackageManager().getInstalledPackages(0);
+        Log.d(TAG, "packList size: "+packList.size());
         for (int i = 0; i < packList.size(); i++) {
             PackageInfo packInfo = packList.get(i);
             if ((packInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                appId = String.valueOf(packInfo.applicationInfo.uid);
-                appName = packInfo.applicationInfo.loadLabel(getPackageManager()).toString();
-                appIcon = String.valueOf(packInfo.applicationInfo.loadIcon(getPackageManager()));
-                Log.d(TAG, "installedApps: (" + i + ") " + appName);
+                appIdList.add(String.valueOf(packInfo.applicationInfo.uid));
+                appNameList.add(packInfo.applicationInfo.loadLabel(getPackageManager()).toString());
+                appPackageNameList.add(packInfo.applicationInfo.packageName);
+                //appIcon = String.valueOf(packInfo.applicationInfo.loadIcon(getPackageManager()));
             }
         }
-        Uri uri = Uri.parse(String.valueOf(appIcon));
-        Log.d(TAG, "apps icon uri: " + uri);
-        appsMap.put("id", appId);
-        appsMap.put("name", appName);
-        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getCurrentUser().getUid() + "/" + child_name).child("installedApps");
-        ref.updateChildren(appsMap);
+        Log.d(TAG, "appPackageNameList : "+appPackageNameList);
+        //Uri uri = Uri.parse(String.valueOf(appIcon));
+        //Log.d(TAG, "apps icon uri: " + uri);
+        for (int i = 0; i < appNameList.size(); i++) {
+            //Log.d(TAG, "appIdList: "+appIdList.get(i));
+            Log.d(TAG, "appNameList: "+appNameList.get(i));
+            appsMap.put("id", appIdList.get(i));
+            appsMap.put("packageName", appPackageNameList.get(i));
+            Log.d(TAG, "firebase UID: " + firebaseAuth.getUid());
+            if(appNameList.get(i).contains(".") != true) {
+                DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name + "/installedApps/" + appNameList.get(i));
+                ref.updateChildren(appsMap);
+            }
+        }
 
-        StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("appsIcon/" + firebaseAuth.getCurrentUser().getUid() + "/" + child_name);
-        uploadTask = mStorageRef.putFile(uri);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+         Log.d(TAG, "installedAppsMap: "+appsMap);
+//        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name +"/apps");
+//        ref.updateChildren(appsMap);
+
+
+        //StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("appsIcon/" + firebaseAuth.getCurrentUser().getUid() + "/" + child_name);
+        //uploadTask = mStorageRef.putFile(uri);
+        /*uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -508,7 +542,25 @@ public class ChildActivity extends AppCompatActivity {
                 });
 
             }
-        });
+        });*/
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private boolean isAccessGranted(){
+        try{
+            PackageManager packageManager = getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int mode = 0;
+            if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT){
+                mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            }
+            return (mode == AppOpsManager.MODE_ALLOWED);
+        }
+        catch (PackageManager.NameNotFoundException e){
+            return false;
+        }
     }
 }
 

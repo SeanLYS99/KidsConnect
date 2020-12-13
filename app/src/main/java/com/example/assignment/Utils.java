@@ -1,10 +1,16 @@
 package com.example.assignment;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.AppOpsManager;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.icu.util.LocaleData;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,9 +18,11 @@ import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -39,6 +47,53 @@ import java.util.regex.Pattern;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class Utils {
+
+    private String EXTRA_LAST_APP = "EXTRA_LAST_APP";
+    private Context context;
+
+    public Utils(Context context){
+        this.context = context;
+    }
+//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//    public static boolean checkPermission(Context context){
+//        AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+//        int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, P)
+//    }
+
+    UsageStatsManager usageStatsManager;
+    public String getLauncherTopApp(){
+        ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        }
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            List<ActivityManager.RunningTaskInfo> taskInfoList = activityManager.getRunningTasks(1);
+            if(taskInfoList != null && !taskInfoList.isEmpty()){
+                return taskInfoList.get(0).topActivity.getPackageName();
+            }
+            else {
+                long endtime = System.currentTimeMillis();
+                long begintime = endtime - 10000;
+                String result = "";
+                UsageEvents.Event event = new UsageEvents.Event();
+                UsageEvents usageEvents = usageStatsManager.queryEvents(begintime, endtime);
+
+                while (usageEvents.hasNextEvent()){
+                    usageEvents.getNextEvent(event);
+                    if(event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND){
+                        result = event.getPackageName();
+                    }
+                }
+
+                if(!TextUtils.isEmpty(result)){
+                    return result;
+                }
+            }
+        }
+        return "";
+    }
+
+
 
     public static void ErrorSweetDialog(Context activity, String title, String content, String confirm){
         new SweetAlertDialog(activity, SweetAlertDialog.ERROR_TYPE)
@@ -254,6 +309,8 @@ public class Utils {
         };
         MySingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
+
+
 
 
     /*public static void showView(List<View> views){

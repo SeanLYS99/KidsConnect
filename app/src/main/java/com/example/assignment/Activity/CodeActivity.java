@@ -176,6 +176,42 @@ public class CodeActivity extends AppCompatActivity {
                 }
             });
         }
+        else if(intent.equals("AppService")){
+            code_input.setVisibility(View.VISIBLE);
+            code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
+                @Override
+                public void onComplete(String code) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot snapshot = task.getResult();
+                                String pin = snapshot.getString("pin");
+                                if (code.equals(pin)) {
+                                    finish();
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                    code_input.clearCode();
+                                    invalidPIN.setText("Invalid PIN!");
+                                    invalidPIN.setVisibility(View.VISIBLE);
+                                }
+                            }
+                            else {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onInput() {
+
+                }
+            });
+        }
     }
 
     private void hideKeyboard()
@@ -239,6 +275,9 @@ public class CodeActivity extends AppCompatActivity {
             case "MainActivity":
                 finish();
                 break;
+            case "AppService":
+                finish();
+                break;
         }
     }
 
@@ -257,6 +296,9 @@ public class CodeActivity extends AppCompatActivity {
                 finish();
                 break;
             case "MainActivity":
+                finish();
+                break;
+            case "AppService":
                 finish();
                 break;
         }

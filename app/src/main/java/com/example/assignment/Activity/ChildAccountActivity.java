@@ -101,7 +101,7 @@ public class ChildAccountActivity extends AppCompatActivity {
 
     private void readData(FirebaseCallBack firebaseCallBack){
         ArrayList<String> accountList = new ArrayList<>();
-        Query query = FirebaseDatabase.getInstance().getReference(firebaseAuth.getCurrentUser().getUid());
+        Query query = FirebaseDatabase.getInstance().getReference(firebaseAuth.getUid());
         FirebaseRecyclerOptions<accountModel> options = new FirebaseRecyclerOptions.Builder<accountModel>()
                 .setQuery(query, accountModel.class)
                 .build();

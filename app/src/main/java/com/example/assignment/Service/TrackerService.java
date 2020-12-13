@@ -59,7 +59,7 @@ public class TrackerService extends Service {
         startForeground(1, builder.build());
     }
 
-    protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+    public BroadcastReceiver stopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             //Log.d(TAG, "received stop broadcast");
@@ -68,6 +68,16 @@ public class TrackerService extends Service {
             stopSelf();
         }
     };
+
+//    protected BroadcastReceiver stopReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            //Log.d(TAG, "received stop broadcast");
+//            // Stop the service when the notification is tapped
+//            unregisterReceiver(stopReceiver);
+//            stopSelf();
+//        }
+//    };
 
     @Override
     public void onDestroy() {

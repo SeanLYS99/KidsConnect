@@ -1,9 +1,12 @@
 package com.example.assignment.Service;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +17,7 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -50,6 +54,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -61,12 +66,14 @@ public class FCMMsgService extends FirebaseMessagingService {
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private GeofencingClient geofencingClient;
     private GeofenceHelper geofenceHelper;
+    TrackerService service = new TrackerService();
 
     List<String> id_list = new ArrayList<>();
     List<Integer> radius_list = new ArrayList<>();
     List<LatLng> latlng_list = new ArrayList<>();
     private static ArrayList<Long> alreadyNotifiedTimestamps = new ArrayList<>();
     private int count;
+    private Handler handler = new Handler();
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -175,9 +182,54 @@ public class FCMMsgService extends FirebaseMessagingService {
                 if (message.equals("Start")) {
                     startService(new Intent(this, TrackerService.class));
                 } else {
+
                     stopService(new Intent(this, TrackerService.class));
+                    unregisterReceiver(service.stopReceiver);
                     stopSelf();
                 }
+            }
+            else if(title.equals("Block Apps")){
+                Log.d(TAG, "onMessageReceived: Block Apps yes");
+                Intent a = new Intent(this, AppService.class);
+                a.putExtra("message", message);
+                startService(a);
+                /*Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                        String packageName = manager.getRunningAppProcesses().get(0).processName;
+                        Log.d(TAG, "packageName: "+packageName);
+                        Log.d(TAG, "message: "+message);
+                        if (packageName.toLowerCase().contains(message)) {
+                            Intent i = new Intent(getBaseContext(), ParentActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(i);
+                        }
+                        handler.postDelayed(this, 1000);
+                    }
+                };
+                handler.post(runnable);
+
+                // Lollipop and above
+                UsageStatsManager usageStatsManager = (UsageStatsManager)getSystemService(USAGE_STATS_SERVICE);
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.YEAR, -1);
+                long start = cal.getTimeInMillis();
+                long end = System.currentTimeMillis();
+                List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, start, end);
+                for (UsageStats stats : queryUsageStats) {
+                    Log.e("TAG", "Usage stats for: " + stats.getPackageName());
+                }*/
+
+//                for (ActivityManager.RunningAppProcessInfo info : manager.getRunningAppProcesses()) {
+//                    Log.e(TAG, "Running process: " + info.processName);
+//                    Log.d(TAG, "blocked app name: "+message);
+//                    if (message.toLowerCase().equals(info.processName)) {
+//                        Intent i = new Intent(getBaseContext(), ParentActivity.class);
+//                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(i);
+//                    }
+//                }
             }
         }
     }

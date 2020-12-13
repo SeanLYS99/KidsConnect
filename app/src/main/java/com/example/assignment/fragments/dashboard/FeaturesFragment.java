@@ -90,6 +90,7 @@ public class FeaturesFragment extends Fragment {
     @OnClick(R.id.Applock_CardView)
     public void applock(){
         Intent applock = new Intent(getActivity(), AppActivity.class);
+        //applock.putExtra("name", )
         startActivity(applock);
     }
 }
