@@ -89,4 +89,7 @@ dependencies {
 
     // Verification Code Input Box
     implementation 'com.github.Wynsbin:VerificationCodeInputView:1.0.2'
+
+    // Paper
+    implementation 'io.paperdb:paperdb:2.7.1'
 }

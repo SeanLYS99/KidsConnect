@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.assignment.R;
+import com.example.assignment.Service.BackgroundManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -74,143 +75,143 @@ public class CodeActivity extends AppCompatActivity {
         sp_userType = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
 
         // check which layout to show
-        if(intent.equals("PickRoleActivity")){ // haven't created PIN
-            title.setText("Create PIN");
-            createPIN.setVisibility(View.VISIBLE);
-            createPIN_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
-                @Override
-                public void onComplete(String code) {
-                    temp_pin = code;
-                    hideKeyboard();
-                }
-                @Override
-                public void onInput() {
+        if(intent != null) {
+            if (intent.equals("PickRoleActivity")) { // haven't created PIN
+                title.setText("Create PIN");
+                createPIN.setVisibility(View.VISIBLE);
+                createPIN_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
+                    @Override
+                    public void onComplete(String code) {
+                        temp_pin = code;
+                        hideKeyboard();
+                    }
 
-                }
-            });
-        }
-        else if(intent.equals("ChildActivity")){
-            enterPIN.setVisibility(View.VISIBLE);
-            showKeyboard(code_input);
-            code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
-                @Override
-                public void onComplete(String code) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
-                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()) {
-                                DocumentSnapshot snapshot = task.getResult();
-                                String pin = snapshot.getString("pin");
-                                if(code.equals(pin)){
-                                    SharedPreferences.Editor editor = sp_userType.edit();
-                                    editor.putString("userType", "-");
-                                    editor.apply();
+                    @Override
+                    public void onInput() {
 
-                                    FirebaseAuth.getInstance().signOut();
-                                    progressBar.setVisibility(View.GONE);
-                                    code_input.clearCode();
-                                    Intent signOut = new Intent(CodeActivity.this, LoginActivity.class);
-                                    startActivity(signOut);
-                                    finish();
-                                }
-                                else{
-                                    progressBar.setVisibility(View.GONE);
-                                    code_input.clearCode();
-                                    invalidPIN.setText("Invalid PIN!");
-                                    invalidPIN.setVisibility(View.VISIBLE);
-                                }
-                            }
-                            else{
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                    }
+                });
+            } else if (intent.equals("ChildActivity")) {
+                enterPIN.setVisibility(View.VISIBLE);
+                showKeyboard(code_input);
+                code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
+                    @Override
+                    public void onComplete(String code) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot snapshot = task.getResult();
+                                    String pin = snapshot.getString("pin");
+                                    if (code.equals(pin)) {
+                                        SharedPreferences.Editor editor = sp_userType.edit();
+                                        editor.putString("userType", "-");
+                                        editor.apply();
 
-                }
-                @Override
-                public void onInput() {
-
-                }
-            });
-        }
-        else if(intent.equals("MainActivity")){
-            enterPIN.setVisibility(View.VISIBLE);
-            showKeyboard(code_input);
-            code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
-                @Override
-                public void onComplete(String code) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
-                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()) {
-                                DocumentSnapshot snapshot = task.getResult();
-                                String pin = snapshot.getString("pin");
-                                if(code.equals(pin)){
-                                    Intent go_main = new Intent(CodeActivity.this, ParentActivity.class);
-                                    startActivity(go_main);
-                                    finish();
-                                }
-                                else{
-                                    progressBar.setVisibility(View.GONE);
-                                    code_input.clearCode();
-                                    invalidPIN.setText("Invalid PIN!");
-                                    invalidPIN.setVisibility(View.VISIBLE);
-                                }
-                            }
-                            else{
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
-                }
-                @Override
-                public void onInput() {
-
-                }
-            });
-        }
-        else if(intent.equals("AppService")){
-            code_input.setVisibility(View.VISIBLE);
-            code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
-                @Override
-                public void onComplete(String code) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
-                    ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot snapshot = task.getResult();
-                                String pin = snapshot.getString("pin");
-                                if (code.equals(pin)) {
-                                    finish();
+                                        FirebaseAuth.getInstance().signOut();
+                                        progressBar.setVisibility(View.GONE);
+                                        code_input.clearCode();
+                                        Intent signOut = new Intent(CodeActivity.this, LoginActivity.class);
+                                        startActivity(signOut);
+                                        finish();
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                        code_input.clearCode();
+                                        invalidPIN.setText("Invalid PIN!");
+                                        invalidPIN.setVisibility(View.VISIBLE);
+                                    }
                                 } else {
                                     progressBar.setVisibility(View.GONE);
-                                    code_input.clearCode();
-                                    invalidPIN.setText("Invalid PIN!");
-                                    invalidPIN.setVisibility(View.VISIBLE);
+                                    Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
                                 }
                             }
-                            else {
-                                progressBar.setVisibility(View.GONE);
-                                Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+                        });
+
+                    }
+
+                    @Override
+                    public void onInput() {
+
+                    }
+                });
+            } else if (intent.equals("MainActivity")) {
+                enterPIN.setVisibility(View.VISIBLE);
+                showKeyboard(code_input);
+                code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
+                    @Override
+                    public void onComplete(String code) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot snapshot = task.getResult();
+                                    String pin = snapshot.getString("pin");
+                                    if (code.equals(pin)) {
+                                        Intent go_main = new Intent(CodeActivity.this, ParentActivity.class);
+                                        startActivity(go_main);
+                                        finish();
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                        code_input.clearCode();
+                                        invalidPIN.setText("Invalid PIN!");
+                                        invalidPIN.setVisibility(View.VISIBLE);
+                                    }
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
-                }
+                        });
 
-                @Override
-                public void onInput() {
+                    }
 
-                }
-            });
+                    @Override
+                    public void onInput() {
+
+                    }
+                });
+            }
+            else if (intent.equals("ReceiverApplock")) {
+                Log.d(TAG, "CodeActivity: ReceiverApplock");
+                code_input.setVisibility(View.VISIBLE);
+//            BackgroundManager.getInstance().init(this).startService();
+                code_input.setOnInputListener(new VerificationCodeInputView.OnInputListener() {
+                    @Override
+                    public void onComplete(String code) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        DocumentReference ref = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid());
+                        ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot snapshot = task.getResult();
+                                    String pin = snapshot.getString("pin");
+                                    if (code.equals(pin)) {
+                                        finish();
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                        code_input.clearCode();
+                                        invalidPIN.setText("Invalid PIN!");
+                                        invalidPIN.setVisibility(View.VISIBLE);
+                                    }
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(CodeActivity.this, "Something went wrong...", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onInput() {
+
+                    }
+                });
+            }
         }
     }
 
@@ -275,7 +276,7 @@ public class CodeActivity extends AppCompatActivity {
             case "MainActivity":
                 finish();
                 break;
-            case "AppService":
+            case "ReceiverApplock":
                 finish();
                 break;
         }
@@ -298,7 +299,7 @@ public class CodeActivity extends AppCompatActivity {
             case "MainActivity":
                 finish();
                 break;
-            case "AppService":
+            case "ReceiverApplock":
                 finish();
                 break;
         }

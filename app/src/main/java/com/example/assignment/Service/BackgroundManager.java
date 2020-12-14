@@ -32,9 +32,12 @@ public class BackgroundManager {
     }
 
     public boolean isMyServiceRunning(Class<?> serviceClass){
+
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
-            if(serviceClass.getName().equals(service.service.getClassName())){
+        for(ActivityManager.RunningServiceInfo serviceinfo : manager.getRunningServices(Integer.MAX_VALUE)){
+            Log.d(TAG, "serviceClass.getName() = "+serviceClass.getName());
+            Log.d(TAG, "service.service.getClassName() = "+serviceinfo.service.getClassName());
+            if(serviceClass.getName().equals(serviceinfo.service.getClassName())){
                 Log.d(TAG, "isMyServiceRunning: yes");
                 return true;
             }
@@ -44,21 +47,23 @@ public class BackgroundManager {
     }
 
     public void startService(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            if(!isMyServiceRunning(ServiceAppLockIntent.class)){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d(TAG, "startService: > ANDROID O");
+            if (!isMyServiceRunning(ServiceAppLockIntent.class)) {
                 Intent intent = new Intent(context, ServiceAppLockIntent.class);
                 ServiceAppLockIntent.enqueueWork(context, intent);
             }
-            else{
-                if(!isMyServiceRunning(ServiceAppLock.class)){
-                    context.startService(new Intent(context, ServiceAppLock.class));
-                }
+        }
+        else{
+            if(!isMyServiceRunning(ServiceAppLock.class)){
+                context.startService(new Intent(context, ServiceAppLock.class));
             }
         }
+
     }
 
     public void stopService(Class<?> serviceClass){
-        if(!isMyServiceRunning(serviceClass)){
+        if(isMyServiceRunning(serviceClass)){
             context.stopService(new Intent(context, serviceClass));
         }
     }

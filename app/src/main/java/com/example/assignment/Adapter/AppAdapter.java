@@ -31,6 +31,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
     String token;
     private final String TAG = "AppAdapter";
     private List<String> appList = new ArrayList<>();
+    private List<String> packageNameList = new ArrayList<>();
     private Context context;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
@@ -54,7 +55,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
         holder.app_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) { // from uncheck to check
+//                if(isChecked) { // from uncheck to check
                     DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar");
 
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -69,7 +70,29 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
 ////                            Utils.StructureJSON("Block Apps", appList.get(position), token, context);
 //                            }
                             token = dataSnapshot.child("token").getValue().toString();
-                            Utils.StructureJSON("Block Apps", appList.get(position), token, context);
+                            DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar/installedApps");
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    dataSnapshot.child("FamiSafe").getValue();
+                                    for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                                        packageNameList.add(snapshot.child("packageName").getValue().toString());
+                                    }
+                                    Log.d(TAG, "AppAdapter: "+packageNameList+", "+token);
+                                    if(isChecked) {
+                                        Utils.StructureJSON("Block Apps", packageNameList.get(position), token, context);
+                                    }
+                                    else {
+                                        Utils.StructureJSON("Unblock Apps", packageNameList.get(position), token, context);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
                         }
 
                         @Override
@@ -79,10 +102,6 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
                     });
 
                 }
-                else{ // from check to uncheck
-                    // allow child to use the app
-                }
-            }
         });
     }
 

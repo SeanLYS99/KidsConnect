@@ -31,6 +31,7 @@ import com.example.assignment.Activity.ChildActivity;
 import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.GeofenceHelper;
 import com.example.assignment.R;
+import com.example.assignment.ReceiverApplock;
 import com.example.assignment.Utils;
 import com.example.assignment.fragments.MapsFragment;
 import com.google.android.gms.location.Geofence;
@@ -57,6 +58,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+
+import io.paperdb.Paper;
 
 public class FCMMsgService extends FirebaseMessagingService {
     private final String TAG = "FCMMessagingService";
@@ -190,9 +193,18 @@ public class FCMMsgService extends FirebaseMessagingService {
             }
             else if(title.equals("Block Apps")){
                 Log.d(TAG, "onMessageReceived: Block Apps yes");
-                Intent a = new Intent(this, AppService.class);
+                Utils utils = new Utils(this);
+                utils.lock(message);
+                if(Paper.book().read("balls.arcademaker.bricks.breaker.brounce.ballz.puzzle") == null){ // app not blocked
+                    Log.d(TAG, "balala");
+                }
+                BackgroundManager.getInstance().init(this).startService();
+//                Intent a = new Intent(this, BackgroundManager.class);
+//                a.putExtra("message", message);
+//                startActivity(a);
+                /*Intent a = new Intent(this, ReceiverApplock.class);
                 a.putExtra("message", message);
-                startService(a);
+                startService(a);*/
                 /*Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
@@ -230,6 +242,16 @@ public class FCMMsgService extends FirebaseMessagingService {
 //                        startActivity(i);
 //                    }
 //                }
+            }
+            else if(title.equals("Unblock Apps")){
+                Utils utils = new Utils(getApplicationContext());
+                utils.unlock(message);
+                if(Paper.book().read("balls.arcademaker.bricks.breaker.brounce.ballz.puzzle") == null){
+                    Log.d(TAG, "balala");
+                }
+                Intent a = new Intent(this, BackgroundManager.class);
+                a.putExtra("message", message);
+                startService(a);
             }
         }
     }

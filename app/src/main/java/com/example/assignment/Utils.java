@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -33,11 +34,18 @@ import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.Activity.SignUpActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,15 +53,40 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import io.paperdb.Paper;
+
+import static com.google.firebase.messaging.Constants.TAG;
 
 public class Utils {
 
     private String EXTRA_LAST_APP = "EXTRA_LAST_APP";
     private Context context;
+    public static FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    public static FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
+    private static List<String> appnameList = new ArrayList<>();
+    private static int temp_isLock = 2;
 
     public Utils(Context context){
         this.context = context;
+        Paper.init(context);
     }
+
+    public static boolean isLock(String packageName){
+        if(packageName == ""){
+            return true;
+        }
+        return Paper.book().read(packageName) != null;
+    }
+
+    public static void lock(String pk){
+        Paper.book().write(pk, pk);
+    }
+
+    public static void unlock(String pk){
+        Paper.book().delete(pk);
+    }
+
+
 //    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 //    public static boolean checkPermission(Context context){
 //        AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
@@ -66,33 +99,117 @@ public class Utils {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
         }
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             List<ActivityManager.RunningTaskInfo> taskInfoList = activityManager.getRunningTasks(1);
-            if(taskInfoList != null && !taskInfoList.isEmpty()){
+            if (taskInfoList != null && !taskInfoList.isEmpty()) {
                 return taskInfoList.get(0).topActivity.getPackageName();
             }
-            else {
-                long endtime = System.currentTimeMillis();
-                long begintime = endtime - 10000;
-                String result = "";
-                UsageEvents.Event event = new UsageEvents.Event();
-                UsageEvents usageEvents = usageStatsManager.queryEvents(begintime, endtime);
+        }
+        else {
+            long endtime = System.currentTimeMillis();
+            long begintime = endtime - 10000;
+            String result = "";
+            UsageEvents.Event event = new UsageEvents.Event();
+            UsageEvents usageEvents = usageStatsManager.queryEvents(begintime, endtime);
 
-                while (usageEvents.hasNextEvent()){
-                    usageEvents.getNextEvent(event);
-                    if(event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND){
-                        result = event.getPackageName();
-                    }
+            while (usageEvents.hasNextEvent()){
+                usageEvents.getNextEvent(event);
+                if(event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND){
+                    result = event.getPackageName();
                 }
+            }
 
-                if(!TextUtils.isEmpty(result)){
-                    return result;
-                }
+            if(!TextUtils.isEmpty(result)){
+                return result;
             }
         }
         return "";
     }
 
+    /** Separator **/
+
+//    private static void getPackageName(callBack callBack){ // get packageName from firebase
+//        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar/installedApps"); // TODO: Change hardcode approach
+//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+//                    appnameList.add(snapshot.child("packageName").getValue().toString());
+//                }
+//                callBack.onCallback(appnameList);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
+//
+//    public static void isLock(String packageName){
+//        // read packageName from firebase
+//        getPackageName(new callBack() {
+//            @Override
+//            public void onCallback(List<String> list) {
+//                for(int i=0; i<list.size(); i++){
+//                    Log.d(TAG, "isLock list: "+list.get(i));
+//                    Log.d(TAG, "passed packageName: "+packageName);
+//                    if(packageName.toLowerCase().contains(list.get(i))){
+//                        temp_isLock = 1;
+//                        break;
+//                    }
+//                    else{
+//                        temp_isLock = 0;
+//                    }
+//                }
+//                Log.d(TAG, "isLock_temp: "+temp_isLock);
+//            }
+//        });
+//
+//    }
+//
+//    private interface callBack{
+//        void onCallback(List<String> list);
+//    }
+
+
+//    public static void isLock(String packageName){
+//        // read true false
+//        List<String> appnameList = new ArrayList<>();
+//        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+//        FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
+//        Log.d(TAG, "isLock: called");
+//        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar/installedApps");
+//        Log.d(TAG, "isLock: called");
+//
+//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+//                    appnameList.add(snapshot.child("packageName").getValue().toString());
+//                }
+//                Log.d(TAG, "Utils: "+appnameList);
+//                for(int i=0; i<appnameList.size();i++){
+//                    if(packageName.toLowerCase().contains(appnameList.get(i))){
+//                        temp = 1; // the app is locked
+//                    }
+//                    else{
+//                        temp = 0;
+//                    }
+//                    callBack
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
+//
+//    private interface callBack{
+//        void onCallback(int value);
+//    }
 
 
     public static void ErrorSweetDialog(Context activity, String title, String content, String confirm){

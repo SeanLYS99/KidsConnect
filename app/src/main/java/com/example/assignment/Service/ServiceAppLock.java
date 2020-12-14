@@ -8,13 +8,9 @@ import androidx.annotation.Nullable;
 import com.example.assignment.ReceiverApplock;
 
 public class ServiceAppLock extends IntentService {
-     /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public ServiceAppLock(String name) {
-        super(name);
+
+    public ServiceAppLock() {
+        super("ServiceAppLock");
     }
 
     private void runApplock(){
@@ -40,8 +36,8 @@ public class ServiceAppLock extends IntentService {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        BackgroundManager.getInstance().init(this).startAlarmManager();
         super.onTaskRemoved(rootIntent);
+        BackgroundManager.getInstance().init(this).startAlarmManager();
     }
 
     @Override
@@ -51,8 +47,7 @@ public class ServiceAppLock extends IntentService {
 
     @Override
     public void onDestroy() {
-        BackgroundManager.getInstance().init(this).startAlarmManager();
-
         super.onDestroy();
+        BackgroundManager.getInstance().init(this).startAlarmManager();
     }
 }

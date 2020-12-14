@@ -51,6 +51,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.assignment.Constants;
 import com.example.assignment.MySingleton;
 import com.example.assignment.R;
+import com.example.assignment.Service.BackgroundManager;
 import com.example.assignment.Service.TrackerService;
 import com.example.assignment.Utils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -92,6 +93,9 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.internal.Util;
+
+import static com.google.firebase.messaging.Constants.TAG;
 
 public class ChildActivity extends AppCompatActivity {
 
@@ -141,6 +145,7 @@ public class ChildActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child);
 
+        BackgroundManager.getInstance().init(this).startService();
         if(!isAccessGranted()){
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
@@ -499,6 +504,7 @@ public class ChildActivity extends AppCompatActivity {
             }
         }
         Log.d(TAG, "appPackageNameList : "+appPackageNameList);
+
         //Uri uri = Uri.parse(String.valueOf(appIcon));
         //Log.d(TAG, "apps icon uri: " + uri);
         for (int i = 0; i < appNameList.size(); i++) {
@@ -507,11 +513,12 @@ public class ChildActivity extends AppCompatActivity {
             appsMap.put("id", appIdList.get(i));
             appsMap.put("packageName", appPackageNameList.get(i));
             Log.d(TAG, "firebase UID: " + firebaseAuth.getUid());
-            if(appNameList.get(i).contains(".") != true) {
+            if(appNameList.get(i).contains(".") != true) { // some of the name contains "."
                 DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name + "/installedApps/" + appNameList.get(i));
                 ref.updateChildren(appsMap);
             }
         }
+        //Utils.isLock(appPackageNameList.get(0));
 
          Log.d(TAG, "installedAppsMap: "+appsMap);
 //        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name +"/apps");
@@ -543,6 +550,42 @@ public class ChildActivity extends AppCompatActivity {
 
             }
         });*/
+    }
+
+    private void isLock(String packageName){
+        Log.d(TAG, "isLock: called");
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar/installedApps/FamiSafe");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String a = dataSnapshot.child("id").getValue().toString();
+                Log.d(TAG, "iasLock: "+a);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.getValue() != null) {
+//                    Log.d(TAG, "isLock: " + dataSnapshot.getChildren());
+//                }
+//                else{
+//                    Log.d(TAG, "isLock: error");
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//                Log.d(TAG, "onCancelled: "+databaseError);
+//            }
+//        });
+
+
+        Log.d(TAG, "isLock: "+packageName);
     }
 
 
