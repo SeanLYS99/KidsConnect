@@ -6,10 +6,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.example.assignment.Activity.ServiceAppLockIntent;
 import com.example.assignment.AutoStartBroadcastReceiver;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.google.firebase.messaging.Constants.TAG;
 
@@ -58,6 +61,10 @@ public class BackgroundManager {
             if(!isMyServiceRunning(ServiceAppLock.class)){
                 context.startService(new Intent(context, ServiceAppLock.class));
             }
+            else if(isMyServiceRunning(ServiceAppLock.class)){
+                context.stopService(new Intent(context, ServiceAppLock.class));
+
+            }
         }
 
     }
@@ -69,10 +76,12 @@ public class BackgroundManager {
     }
 
     public void startAlarmManager(){
+        Log.d(TAG, "startAlarmManager: called");
         Intent intent = new Intent(context, AutoStartBroadcastReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, ALARM_ID, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+period, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime()-1, TimeUnit.MINUTES.toMillis(1), pendingIntent);
+        //alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pendingIntent);
     }
 
     public void stopAlarmManager(){

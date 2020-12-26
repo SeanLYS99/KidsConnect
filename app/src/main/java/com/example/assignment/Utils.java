@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -46,10 +47,13 @@ import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -71,21 +75,32 @@ public class Utils {
         Paper.init(context);
     }
 
-    public static boolean isLock(String packageName){
-        if(packageName == ""){
-            return true;
-        }
+    public boolean isLock(String packageName){
+//        if(packageName == ""){
+//            return true;
+//        }
         return Paper.book().read(packageName) != null;
     }
 
-    public static void lock(String pk){
+    public void lock(String pk){
         Paper.book().write(pk, pk);
     }
 
-    public static void unlock(String pk){
+    public void unlock(String pk){
         Paper.book().delete(pk);
     }
 
+    public void setLastApp(String pk){
+        Paper.book().write(EXTRA_LAST_APP, pk);
+    }
+
+    public String getLastApp(){
+        return Paper.book().read(EXTRA_LAST_APP);
+    }
+
+    public void clearLastApp(){
+        Paper.book().delete(EXTRA_LAST_APP);
+    }
 
 //    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 //    public static boolean checkPermission(Context context){
@@ -94,34 +109,60 @@ public class Utils {
 //    }
 
     UsageStatsManager usageStatsManager;
-    public String getLauncherTopApp(){
-        ActivityManager activityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+    public String getLauncherTopApp() {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            Log.d(TAG, "usageStatsManager: " + usageStatsManager);
         }
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            //Log.d(TAG, "getLauncherTopApp: topAPP");
             List<ActivityManager.RunningTaskInfo> taskInfoList = activityManager.getRunningTasks(1);
+            Log.d(TAG, "getLauncherTopApp: taskInfoList= " + taskInfoList);
             if (taskInfoList != null && !taskInfoList.isEmpty()) {
                 return taskInfoList.get(0).topActivity.getPackageName();
             }
         }
         else {
-            long endtime = System.currentTimeMillis();
-            long begintime = endtime - 10000;
-            String result = "";
-            UsageEvents.Event event = new UsageEvents.Event();
-            UsageEvents usageEvents = usageStatsManager.queryEvents(begintime, endtime);
-
-            while (usageEvents.hasNextEvent()){
-                usageEvents.getNextEvent(event);
-                if(event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND){
-                    result = event.getPackageName();
+//            long endtime = System.currentTimeMillis();
+//            long begintime = endtime - 10000;
+//            String result = "";
+//            UsageEvents.Event event = new UsageEvents.Event();
+//            UsageEvents usageEvents = usageStatsManager.queryEvents(begintime, endtime);
+//
+//            while (usageEvents.hasNextEvent()){ // if found new app opened
+//                Log.d(TAG, "getLauncherTopApp: HAS NEXT EVENT");
+//                usageEvents.getNextEvent(event);
+//                if(event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND){
+//                    Log.d(TAG, "getLauncherTopApp: MOVE_TO_FOREGROUND");
+//                    result = event.getPackageName();
+//                }
+//            }
+//            if(!TextUtils.isEmpty(result)){
+//                return result;
+//            }
+//        }
+//        return "";
+            String currentApp = "NULL";
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                UsageStatsManager usm = (UsageStatsManager) this.context.getSystemService(Context.USAGE_STATS_SERVICE);
+                long time = System.currentTimeMillis();
+                List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 1000, time);
+                if (appList != null && appList.size() > 0) {
+                    SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+                    for (UsageStats usageStats : appList) {
+                        mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                    }
+                    if (mySortedMap != null && !mySortedMap.isEmpty()) {
+                        currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+                    }
                 }
+            } else {
+                ActivityManager am = (ActivityManager) this.context.getSystemService(Context.ACTIVITY_SERVICE);
+                List<ActivityManager.RunningAppProcessInfo> tasks = am.getRunningAppProcesses();
+                currentApp = tasks.get(0).processName;
             }
-
-            if(!TextUtils.isEmpty(result)){
-                return result;
-            }
+            return currentApp;
         }
         return "";
     }

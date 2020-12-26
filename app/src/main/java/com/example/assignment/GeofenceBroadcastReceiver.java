@@ -7,18 +7,29 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleService;
 
 import com.example.assignment.Activity.ParentActivity;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "GeofenceBroadcastReceiv";
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -47,6 +58,31 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             case Geofence.GEOFENCE_TRANSITION_ENTER: // send noti to fcm
                 //notificationHelper.sendHighPriorityNotification("Geofence ENTERED", "your kid has entered home", ParentActivity.class);
                 Utils.StructureJSON("Sapphire has entered geofence", "Tap to open app and see where Sapphire is", intent.getStringExtra("token"), context);
+//                String id = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document().getId();
+//                DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document(id);
+//
+//                Map<String, Object> notificationMap = new HashMap<>();
+//                notificationMap.put("id", id);
+//                notificationMap.put("isClicked", "false");
+//                notificationMap.put("title", "Geofence Crossed");
+//                notificationMap.put("content", "Your kid has entered geofence");
+//                notificationMap.put("datetime", datetime);
+//                //notificationMap.put("time", time);
+//                notificationMap.put("name", child_name);
+//
+//                doc.set(notificationMap, SetOptions.merge())
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//
+//                            }
+//                        });
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 break;

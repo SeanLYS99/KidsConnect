@@ -109,30 +109,26 @@ public class TrackerService extends Service {
     }
 
     private void requestLocationUpdates() {
-        // Functionality coming next step
-        String uid = firebaseAuth.getCurrentUser().getUid();
-        String name = sp.getString("name", null);
-        //Log.e("uid",name);
+        String uid = firebaseAuth.getCurrentUser().getUid(); // Get UID of the current signed in user
+        String name = sp.getString("name", null); // Get the name of the child, who is being tracked
         LocationRequest request = new LocationRequest();
         request.setInterval(10000);
         request.setFastestInterval(5000);
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-        //final String path = getString(R.string.firebase_path) + "/" + uid;
         final String path = uid + "/" + name;
-        int permission = ContextCompat.checkSelfPermission(this,
+        int permission = ContextCompat.checkSelfPermission(this, // check if user has enabled location permission
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permission == PackageManager.PERMISSION_GRANTED) {
+        if (permission == PackageManager.PERMISSION_GRANTED) { // if yes only start tracking
             // Request location updates and when an update is
-            // received, store the location in Firebase
+            // received, store the location in Firebase Realtime database
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path).child("location");
                     Location location = locationResult.getLastLocation();
                     if (location != null) {
-                        //Log.d(TAG, "location update " + location);
-                        ref.setValue(location);
+                        ref.setValue(location); // save all returned json data into firebase realtime database
                     }
                 }
             }, null);

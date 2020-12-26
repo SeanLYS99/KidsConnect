@@ -9,10 +9,11 @@
     <include android:id="@+id/app_toolbar"
         layout="@layout/custom_toolbar"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <ListView
         android:id="@+id/app_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:divider="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

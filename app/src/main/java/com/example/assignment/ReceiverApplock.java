@@ -1,5 +1,6 @@
 package com.example.assignment;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +25,6 @@ import static com.google.firebase.messaging.Constants.TAG;
 
 public class ReceiverApplock extends BroadcastReceiver {
 
-    // TODO: Read firebase database app, and inside for loop, match with appRunning string, if equals, open CodeActivity
 //    private static List<String> appnameList = new ArrayList<>();
 //    private static FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
 //    private static FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -35,6 +35,17 @@ public class ReceiverApplock extends BroadcastReceiver {
         String appRunning = utils.getLauncherTopApp();
         Log.d(TAG, "receiver app lock: "+appRunning);
         if(utils.isLock(appRunning)){
+//            if(!appRunning.equals(utils.getLastApp())){
+//                utils.clearLastApp();
+//                utils.setLastApp(appRunning);
+//
+//                Intent i = new Intent(context, LockActivity.class);
+//                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                i.putExtra("broadcast_receiver", "broadcast_receiver");
+//                context.startActivity(i);
+//            }
+            ActivityManager mActivityManager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+            mActivityManager.killBackgroundProcesses(appRunning);
             Intent i = new Intent(context, LockActivity.class);
             intent.putExtra("Intent", "ReceiverApplock");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

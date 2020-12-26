@@ -147,8 +147,13 @@ public class ChildActivity extends AppCompatActivity {
 
         BackgroundManager.getInstance().init(this).startService();
         if(!isAccessGranted()){
+            //ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.PACKAGE_USAGE_STATS}, 1);
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
+        }
+
+        if(ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.KILL_BACKGROUND_PROCESSES) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(ChildActivity.this, new String[]{Manifest.permission.KILL_BACKGROUND_PROCESSES}, 1001);
         }
 
         if (ContextCompat.checkSelfPermission(ChildActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
@@ -428,16 +433,6 @@ public class ChildActivity extends AppCompatActivity {
     private void updateFirestore() {
         String id = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document().getId();
         DocumentReference doc = db.collection("UserInfo").document(firebaseAuth.getCurrentUser().getUid()).collection("notification").document(id);
-        /*StorageReference storageReference = storage.getReference().child("icons/notification_danger.png");
-        Log.d(TAG, "updateFirestore: "+storageReference);
-        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                // received image url
-                // store data to firestore
-
-            }
-        });*/
 
         Map<String, Object> notificationMap = new HashMap<>();
         notificationMap.put("id", id);
@@ -551,43 +546,6 @@ public class ChildActivity extends AppCompatActivity {
             }
         });*/
     }
-
-    private void isLock(String packageName){
-        Log.d(TAG, "isLock: called");
-        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid()+"/Alistar/installedApps/FamiSafe");
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String a = dataSnapshot.child("id").getValue().toString();
-                Log.d(TAG, "iasLock: "+a);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                if(dataSnapshot.getValue() != null) {
-//                    Log.d(TAG, "isLock: " + dataSnapshot.getChildren());
-//                }
-//                else{
-//                    Log.d(TAG, "isLock: error");
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                Log.d(TAG, "onCancelled: "+databaseError);
-//            }
-//        });
-
-
-        Log.d(TAG, "isLock: "+packageName);
-    }
-
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private boolean isAccessGranted(){

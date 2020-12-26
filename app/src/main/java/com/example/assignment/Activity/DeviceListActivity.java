@@ -47,6 +47,7 @@ import butterknife.OnClick;
 
 public class DeviceListActivity extends AppCompatActivity {
 
+    private static final String TAG = "DeviceListActivity";
     public static ConstraintLayout pb;
     public static ConstraintLayout empty;
     private DeviceListAdapter adapter;
@@ -82,19 +83,9 @@ public class DeviceListActivity extends AppCompatActivity {
     public static void deleteRealtimeDatabase(Context context, String name){
         try {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference(currentUser.getUid()).child(name);
-            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    ref.removeValue();
-                    pb.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-            Log.e("refer", ref.toString());
+            Log.d(TAG, "deleteRealtimeDatabase: "+ref);
+            ref.removeValue();
+            pb.setVisibility(View.INVISIBLE);
         }
         catch (Exception e){
             Log.d("DeviceListActivity", "deleteRealtimeDatabase: "+e.getMessage());

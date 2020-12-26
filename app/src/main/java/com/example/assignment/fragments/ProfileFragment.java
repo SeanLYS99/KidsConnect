@@ -31,7 +31,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.assignment.Activity.CodeActivity;
 import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.EditProfileActivity;
@@ -291,38 +290,26 @@ public class ProfileFragment extends Fragment {
         if(mImageUri!= null){
             final StorageReference fileReference = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(mImageUri));
             uploadTask = fileReference.putFile(mImageUri);
-            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                        @Override
-                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                            if(!task.isSuccessful()){
-                                throw task.getException();
-                            }
-                            return fileReference.getDownloadUrl();
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                Task<Uri> uriTask = uploadTask.continueWithTask(task -> {
+                    if(!task.isSuccessful()){
+                        throw task.getException();
+                    }
+                    return fileReference.getDownloadUrl();
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if(task.isSuccessful()){
+                            String imageUrl = task.getResult().toString();
+                            saveUserInfo(currentUser.getUid(), imageUrl);
                         }
-                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Uri> task) {
-                            if(task.isSuccessful()){
-                                String imageUrl = task.getResult().toString();
-                                saveUserInfo(currentUser.getUid(), imageUrl);
-                            }
-                        }
-                    });
-                }
+                    }
+                });
             })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Failed to upload image.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            .addOnFailureListener(e -> Toast.makeText(getActivity(), "Failed to upload image.", Toast.LENGTH_SHORT).show());
         } else {
             Toast.makeText(getActivity(), "Please select an image", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     private void updateUserInfo(final FirebaseUser user){

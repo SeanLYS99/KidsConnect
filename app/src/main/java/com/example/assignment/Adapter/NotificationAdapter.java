@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.assignment.Activity.NotificationDetailActivity;
 import com.example.assignment.Model.notificationModel;
 import com.example.assignment.R;

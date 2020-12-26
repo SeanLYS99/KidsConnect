@@ -12,7 +12,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.assignment.R;
 import com.example.assignment.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;

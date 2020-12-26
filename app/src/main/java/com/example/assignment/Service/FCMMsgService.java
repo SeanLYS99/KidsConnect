@@ -10,6 +10,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,6 +29,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.assignment.Activity.ChildActivity;
+import com.example.assignment.Activity.DeviceListActivity;
 import com.example.assignment.Activity.ParentActivity;
 import com.example.assignment.GeofenceHelper;
 import com.example.assignment.R;
@@ -77,6 +79,7 @@ public class FCMMsgService extends FirebaseMessagingService {
     private static ArrayList<Long> alreadyNotifiedTimestamps = new ArrayList<>();
     private int count;
     private Handler handler = new Handler();
+    SharedPreferences sp_userType;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -184,8 +187,8 @@ public class FCMMsgService extends FirebaseMessagingService {
             } else if (title.equals("Tracking")) {
                 if (message.equals("Start")) {
                     startService(new Intent(this, TrackerService.class));
-                } else {
-
+                }
+                else {
                     stopService(new Intent(this, TrackerService.class));
                     unregisterReceiver(service.stopReceiver);
                     stopSelf();
@@ -195,9 +198,6 @@ public class FCMMsgService extends FirebaseMessagingService {
                 Log.d(TAG, "onMessageReceived: Block Apps yes");
                 Utils utils = new Utils(this);
                 utils.lock(message);
-                if(Paper.book().read("balls.arcademaker.bricks.breaker.brounce.ballz.puzzle") == null){ // app not blocked
-                    Log.d(TAG, "balala");
-                }
                 BackgroundManager.getInstance().init(this).startService();
 //                Intent a = new Intent(this, BackgroundManager.class);
 //                a.putExtra("message", message);
@@ -252,6 +252,13 @@ public class FCMMsgService extends FirebaseMessagingService {
                 Intent a = new Intent(this, BackgroundManager.class);
                 a.putExtra("message", message);
                 startService(a);
+            }
+            else if(title.equals("remove child")){
+                Log.d(TAG, "onMessageReceived: "+title);
+                sp_userType = getSharedPreferences("com.example.assignment.userType", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp_userType.edit();
+                editor.putString("userType", "-");
+                editor.apply();
             }
         }
     }

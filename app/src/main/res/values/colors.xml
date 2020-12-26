@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <color name="colorPrimary">@color/mainColor</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#ffffff</color>
@@ -17,4 +17,10 @@
     <color name="endColor">#ffa121</color>
     <color name="reddish_grey">#D8CACA</color>
     <color name="red">#E10600</color>
+    <color name="quantum_grey100">#FFF5F5F5</color>
+    <color name="quantum_grey300">#FFE0E0E0</color>
+    <color name="quantum_grey200">#FFEEEEEE</color>
+    <color name="quantum_grey400">#FFBDBDBD</color>
+    <color name="quantum_grey600">#FF757575</color>
+    <color name="quantum_purple400">#FFAB47BC</color>
 </resources>

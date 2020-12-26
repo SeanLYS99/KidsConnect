@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.assignment.Adapter.AppAdapter;
@@ -37,14 +40,18 @@ public class AppActivity extends AppCompatActivity {
 
     private static final String TAG = "AppActivity";
     @BindView(R.id.custom_toolbar_title) TextView title;
-    @BindView(R.id.app_recyclerview) RecyclerView app_recview;
+    @BindView(R.id.app_recyclerview)
+    ListView app_recview;
     //@BindView(R.id.app_child_recyclerview) RecyclerView acc_recview;
     @BindView(R.id.app_pb) ConstraintLayout pb;
 
+    ArrayList<String> arrayList = new ArrayList<>();
+    ArrayAdapter<String> arrayAdapter;
     private AppAdapter adapter;
     private List<String> appsNameList = new ArrayList<>();
     FirebaseDatabase realtime_db = FirebaseDatabase.getInstance();
     FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    String child_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +60,9 @@ public class AppActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         title.setText("Installed Apps");
-        app_recview.setLayoutManager(new LinearLayoutManager(AppActivity.this));
+        //app_recview.setLayoutManager(new LinearLayoutManager(AppActivity.this));
         //acc_recview.setLayoutManager(new LinearLayoutManager(AppActivity.this));
+        child_name = getIntent().getStringExtra("child");
         initRecyclerView();
     }
 
@@ -69,16 +77,21 @@ public class AppActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/Alistar/installedApps"); // TODO: Change hardcode approach
+        DatabaseReference ref = realtime_db.getReference(firebaseAuth.getUid() + "/" + child_name + "/installedApps"); // TODO: Change hardcode approach
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     appsNameList.add(snapshot.getKey());
+                    //arrayList.add(snapshot.getKey());
                     Log.d(TAG, "appList Inside: "+appsNameList);
                 }
-                adapter = new AppAdapter(AppActivity.this, appsNameList);
-                app_recview.setAdapter(adapter);
+                app_recview.setAdapter(new AppAdapter(AppActivity.this, R.layout.recyclerview_app, appsNameList, child_name));
+//                adapter = new AppAdapter(AppActivity.this, appsNameList);
+//                app_recview.setAdapter(adapter);
+
+                //arrayAdapter = new ArrayAdapter<String>(AppActivity.this, R.layout.recyclerview_app, arrayList);
+                //app_recview.setAdapter(adapter);
             }
 
             @Override
